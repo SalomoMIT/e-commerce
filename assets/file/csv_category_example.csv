@@ -1,0 +1,4 @@
+"category_id","name","slug","parent_id","category_order","meta_title","meta_description","meta_keywords"
+"1","Clothing","clothing","0","1","Category Clothing","Category Clothing","category, clothing"
+"2","Shoes","","0","2","Category Shoes","Category Shoes","category, shoes"
+"3","Women's Clothing","womens-clothing","1","1","Category Women's Clothing","Category Women's Clothing","category, women, clothing"

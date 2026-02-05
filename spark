@@ -1,0 +1,74 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * CodeIgniter 4 CLI Tool
+ *
+ * This file allows you to run the CodeIgniter CLI commands.
+ * Usage: php spark [command]
+ *
+ * Common commands:
+ *   php spark serve     - Start the development server
+ *   php spark routes    - Display all routes
+ *   php spark help      - Show available commands
+ */
+
+/*
+ *---------------------------------------------------------------
+ * DISABLE LICENSE VALIDATION FOR LOCAL DEBUGGING
+ * Remove or comment out this line when deploying to production
+ *---------------------------------------------------------------
+ */
+define('MDS_MAIN_PRC', true);
+
+/*
+ *---------------------------------------------------------------
+ * CHECK PHP VERSION
+ *---------------------------------------------------------------
+ */
+
+$minPhpVersion = '8.1';
+if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
+    $message = sprintf(
+        'Your PHP version must be %s or higher to run CodeIgniter. Current version: %s',
+        $minPhpVersion,
+        PHP_VERSION
+    );
+
+    exit($message . PHP_EOL);
+}
+
+// We want errors to be shown when using it from the CLI.
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+/*
+ *---------------------------------------------------------------
+ * SET THE CURRENT DIRECTORY
+ *---------------------------------------------------------------
+ */
+
+// Path to the front controller
+define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);
+
+// Ensure the current directory is pointing to the front controller's directory
+if (getcwd() . DIRECTORY_SEPARATOR !== FCPATH) {
+    chdir(FCPATH);
+}
+
+/*
+ *---------------------------------------------------------------
+ * BOOTSTRAP THE APPLICATION
+ *---------------------------------------------------------------
+ */
+
+// Load our paths config file
+require FCPATH . 'app/Config/Paths.php';
+
+$paths = new Config\Paths();
+
+// Load the framework bootstrap file
+require $paths->systemDirectory . '/Boot.php';
+
+// Run the CLI
+exit(CodeIgniter\Boot::bootSpark($paths));

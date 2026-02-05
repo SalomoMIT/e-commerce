@@ -1,0 +1,3 @@
+"name","field_type","is_required","status","field_order","is_product_filter","category_id","options"
+"Condition","single_select","1","1","1","1","3","New,Used"
+"Material","multi_select","1","1","2","1","2,3","Leather,Synthetic,Fabric Lining"

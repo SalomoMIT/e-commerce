@@ -1,0 +1,38 @@
+<?php if (!empty($product)):
+    $digitalFile = getProductDigitalFile($product->id);
+    if (!empty($digitalFile)):?>
+        <form action="<?= base_url('File/downloadDigitalFile'); ?>" method="post" id="form_download_digital_file">
+            <?= csrf_field(); ?>
+            <input type="hidden" name="file_id" value="<?= $digitalFile->id; ?>">
+            <div class="dm-uploaded-digital-file">
+                <a href="javascript:void(0)" class="pull-left link-uploaded-digital-file" onclick="$('#form_download_digital_file').submit();">
+                    <i class="fa fa-file-zipper"></i>&nbsp;&nbsp;<strong><?= esc($digitalFile->file_name); ?></strong>
+                </a>
+                <a href="javascript:void(0)" class="btn btn-sm btn-danger pull-right" onclick="deleteProductDigitalFile('<?= $digitalFile->id; ?>','<?= trans("confirm_delete", true) ?>');">
+                    <i class="fa fa-trash-can"></i>&nbsp;&nbsp;<?= trans("delete"); ?>
+                </a>
+                <button type="submit" class="btn btn-sm btn-info color-white pull-right m-r-5">
+                    <i class="fa fa-download"></i>&nbsp;&nbsp;<?= trans("download"); ?>
+                </button>
+            </div>
+        </form>
+    <?php else: ?>
+        <div class="dm-uploader-container">
+            <div id="drag-and-drop-zone-digital-files" class="dm-uploader dm-uploader-media text-center">
+                <p class="dm-upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+                        <path fill="currentColor"
+                              d="M14.702 28.838c-1.757 0-3.054-.031-4.248-.061c-1.014-.024-1.954-.047-3.043-.047a6.454 6.454 0 0 1-6.447-6.446a6.4 6.4 0 0 1 2.807-5.321a10.6 10.6 0 0 1-.217-2.138C3.554 8.983 8.307 4.23 14.15 4.23c3.912 0 7.495 2.164 9.332 5.574a6.4 6.4 0 0 1 4.599-1.929a6.454 6.454 0 0 1 6.258 8.008a6.45 6.45 0 0 1 4.699 6.207a6.455 6.455 0 0 1-6.447 6.448c-1.661 0-2.827.013-3.979.024c-1.126.012-2.239.024-3.784.024a.5.5 0 0 1 0-1c1.541 0 2.65-.012 3.773-.024c1.155-.012 2.325-.024 3.99-.024a5.447 5.447 0 0 0 1.025-10.798a.5.5 0 0 1-.379-.653a5.452 5.452 0 0 0-5.156-7.213a5.41 5.41 0 0 0-4.318 2.129a.498.498 0 0 1-.852-.101a9.62 9.62 0 0 0-8.76-5.674c-5.291 0-9.596 4.304-9.596 9.595c0 .76.09 1.518.267 2.252a.5.5 0 0 1-.227.545a5.41 5.41 0 0 0-2.63 4.662a5.453 5.453 0 0 0 5.447 5.446c1.098 0 2.045.022 3.067.048c1.188.028 2.477.06 4.224.06a.5.5 0 1 1-.001 1.002"/>
+                        <path fill="currentColor" d="M26.35 22.456a.5.5 0 0 1-.347-.14l-6.777-6.535l-6.746 6.508a.5.5 0 1 1-.694-.721l7.093-6.841a.5.5 0 0 1 .694-.001l7.123 6.869a.5.5 0 0 1-.346.861"/>
+                        <path fill="currentColor" d="M19.226 35.769a.5.5 0 0 1-.5-.5V15.087a.5.5 0 0 1 1 0V35.27a.5.5 0 0 1-.5.499"/>
+                    </svg>
+                </p>
+                <p class="dm-upload-text"><?= trans("drag_drop_file_here"); ?>&nbsp;<span style="text-decoration: underline"><?= trans('browse_files'); ?></span></p>
+                <a class='btn btn-md dm-btn-select-files'>
+                    <input type="file" name="file">
+                </a>
+                <ul class="dm-uploaded-files dm-uploaded-media-file" id="files-digital-files"></ul>
+            </div>
+        </div>
+    <?php endif;
+endif; ?>
