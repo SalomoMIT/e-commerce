@@ -31,9 +31,9 @@
                                 <label class="control-label">Nama Kurir</label>
                                 <div class="input-group">
                                     <select id="courier_select"
-                                            class="select2 form-control"
-                                            name="courier[]"
-                                            multiple>
+                                    class="select2 form-control"
+                                    name="courier[]"
+                                    multiple>
                                         <?php if (!empty($listCourier)): ?>
                                             <?php foreach ($listCourier as $c): ?>
                                                 <option value="<?= esc($c['code']); ?>">
@@ -345,3 +345,7 @@
         </div>
     <?php endforeach;
 endif; ?>
+<script>
+    var selectedCourier = JSON.parse(<?= json_encode($userData->couriers ?? []) ?>)
+    var selectedCodes = selectedCourier.map(c => c.code);    
+</script>

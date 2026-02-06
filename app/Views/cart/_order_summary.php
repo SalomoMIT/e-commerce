@@ -1,11 +1,10 @@
 <div class="col-sm-12 col-lg-6 order-summary-container">
     <h2 class="cart-section-title"><?= trans("order_summary"); ?> (<?= esc($cart->num_items); ?>)</h2>
     <div class="right">
-        <div class="cart-order-details">
+        <div class="cart-order-details" style="max-height:500px; overflow-y:auto;">
             <?php if (!empty($groupedSellers)):
                 foreach ($groupedSellers as $sellerGroup): ?>
-
-                    <!-- ROW TOKO -->
+                <div style="background-color:white">
                     <div class="row-custom m-t-15 m-b-10">
                         <strong>
                             <?= trans("seller"); ?> :
@@ -60,7 +59,21 @@
                                         <?= priceDecimal($cartItem->total_price, $cart->currency_code); ?>
                                     </strong>
                                 </div>
-
+                                <div id="itemId_<?= $cartItem->id ?>" class="list-item mb-2">
+                                    <label class="form-label mb-1 fw-semibold">
+                                        <?= trans("Courier"); ?>
+                                    </label>
+                                    <strong class="lbl-price">
+                                    <select 
+                                        id="select_province_guest_<?= $cartItem->id ?>" 
+                                        class="form-select select2"
+                                        onchange="getCitiesGuest(this.value,'');" 
+                                        required
+                                    >
+                                        <option value="">Pilih Kurir</option>
+                                    </select>
+                                    </strong>
+                                </div>
                                 <?php if (!empty($cartItem->product_vat) && $cartItem->product_vat > 0): ?>
                                     <div class="list-item">
                                         <label><?= trans("vat"); ?>&nbsp;(<?= $cartItem->product_vat_rate; ?>%):</label>
@@ -70,7 +83,7 @@
                             </div>
                         </div>
                     <?php endforeach; ?>
-
+                </div>
             <?php endforeach;
             endif; ?>
         </div>
@@ -123,3 +136,6 @@
         <?php endif; ?>
     </div>
 </div>
+<script>
+    var dataSummary = <?= json_encode($groupedSellers) ?>
+</script>

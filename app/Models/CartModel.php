@@ -1120,26 +1120,25 @@ class CartModel extends BaseModel
         if (empty($cartRaw)) {
             return false;
         }
-
-        $isSame = !empty(inputPost('use_same_address_for_billing')) ? 1 : 0;
+        // $isSame = !empty(inputPost('use_same_address_for_billing')) ? 1 : 0;
         $data = new \stdClass();
-        $data->useSameAddressForBilling = $isSame;
+        // $data->useSameAddressForBilling = $isSame;
         $data->isGuest = 0;
         if (authCheck()) {
             $profileModel = new ProfileModel();
-            $sAddressId = inputPost('shipping_address_id');
-            $bAddressId = inputPost('billing_address_id');
-            $sAddress = $profileModel->getShippingAddressById($sAddressId, user()->id);
-            if ($isSame) {
-                $bAddressId = 0;
-                $bAddress = $sAddress;
-            } else {
-                $bAddress = $profileModel->getShippingAddressById($bAddressId, user()->id);
-                if (empty($bAddress)) {
-                    $bAddress = $sAddress;
-                    $data->useSameAddressForBilling = 1;
-                }
-            }
+            // $sAddressId = inputPost('shipping_address_id');
+            // $bAddressId = inputPost('billing_address_id');
+            // $sAddress = $profileModel->getShippingAddressById($sAddressId, user()->id);
+            // if ($isSame) {
+            //     $bAddressId = 0;
+            //     $bAddress = $sAddress;
+            // } else {
+            //     $bAddress = $profileModel->getShippingAddressById($bAddressId, user()->id);
+            //     if (empty($bAddress)) {
+            //         $bAddress = $sAddress;
+            //         $data->useSameAddressForBilling = 1;
+            //     }
+            // }
             if (!empty($sAddress)) {
                 $country = getCountry($sAddress->country_id);
                 $state = getState($sAddress->state_id);
@@ -1157,33 +1156,39 @@ class CartModel extends BaseModel
                 $data->sState = !empty($state) ? $state->name : '';
                 $data->sCity = $sAddress->city;
                 $data->sZipCode = $sAddress->zip_code;
+                $data->province_id = inputPost('province_id');
+                $data->province_name = inputPost('province_name');
+                $data->city_id = inputPost('city_id');
+                $data->city_name = inputPost('city_name');
+                $data->district_id = inputPost('district_id');
+                $data->district_name = inputPost('district_name');
             }
-            if (!empty($bAddress)) {
-                $country = getCountry($bAddress->country_id);
-                $state = getState($bAddress->state_id);
-                $data->billingAddressId = $bAddressId;
-                $data->bTitle = $bAddress->title;
-                $data->bFirstName = $bAddress->first_name;
-                $data->bLastName = $bAddress->last_name;
-                $data->bEmail = $bAddress->email;
-                $data->bPhoneNumber = $bAddress->phone_number;
-                $data->bAddress = $bAddress->address;
-                $data->bCountryId = !empty($country) ? $country->id : 0;
-                $data->bCountry = !empty($country) ? $country->name : '';
-                $data->bStateId = !empty($state) ? $state->id : 0;
-                $data->bState = !empty($state) ? $state->name : '';
-                $data->bCity = $bAddress->city;
-                $data->bZipCode = $bAddress->zip_code;
-            }
+            // if (!empty($bAddress)) {
+            //     $country = getCountry($bAddress->country_id);
+            //     $state = getState($bAddress->state_id);
+            //     $data->billingAddressId = $bAddressId;
+            //     $data->bTitle = $bAddress->title;
+            //     $data->bFirstName = $bAddress->first_name;
+            //     $data->bLastName = $bAddress->last_name;
+            //     $data->bEmail = $bAddress->email;
+            //     $data->bPhoneNumber = $bAddress->phone_number;
+            //     $data->bAddress = $bAddress->address;
+            //     $data->bCountryId = !empty($country) ? $country->id : 0;
+            //     $data->bCountry = !empty($country) ? $country->name : '';
+            //     $data->bStateId = !empty($state) ? $state->id : 0;
+            //     $data->bState = !empty($state) ? $state->name : '';
+            //     $data->bCity = $bAddress->city;
+            //     $data->bZipCode = $bAddress->zip_code;
+            // }
         } else {
-            $sCountry = getCountry(inputPost('shipping_country_id'));
-            $sState = getState(inputPost('shipping_state_id'));
-            $bCountry = $sCountry;
-            $bState = $sState;
-            if (!$isSame) {
-                $bCountry = getCountry(inputPost('billing_country_id'));
-                $bState = getState(inputPost('billing_state_id'));
-            }
+            // $sCountry = getCountry(inputPost('shipping_country_id'));
+            // $sState = getState(inputPost('shipping_state_id'));
+            // $bCountry = $sCountry;
+            // $bState = $sState;
+            // if (!$isSame) {
+            //     $bCountry = getCountry(inputPost('billing_country_id'));
+            //     $bState = getState(inputPost('billing_state_id'));
+            // }
             $data->isGuest = 1;
             $data->shippingAddressId = 0;
             $data->shippingStateId = !empty($sState) ? $sState->id : 0;
@@ -1193,24 +1198,30 @@ class CartModel extends BaseModel
             $data->sEmail = inputPost('shipping_email');
             $data->sPhoneNumber = inputPost('shipping_phone_number');
             $data->sAddress = inputPost('shipping_address');
-            $data->sCountryId = !empty($sCountry) ? $sCountry->id : '';
-            $data->sCountry = !empty($sCountry) ? $sCountry->name : '';
-            $data->sStateId = !empty($sState) ? $sState->id : '';
-            $data->sState = !empty($sState) ? $sState->name : '';
+            // $data->sCountryId = !empty($sCountry) ? $sCountry->id : '';
+            // $data->sCountry = !empty($sCountry) ? $sCountry->name : '';
+            // $data->sStateId = !empty($sState) ? $sState->id : '';
+            // $data->sState = !empty($sState) ? $sState->name : '';
             $data->sCity = inputPost('shipping_city');
             $data->sZipCode = inputPost('shipping_zip_code');
-            $data->bTitle = 'Main';
-            $data->bFirstName = $isSame ? $data->sFirstName : inputPost('billing_first_name');
-            $data->bLastName = $isSame ? $data->sLastName : inputPost('billing_last_name');
-            $data->bEmail = $isSame ? $data->sEmail : inputPost('billing_email');
-            $data->bPhoneNumber = $isSame ? $data->sPhoneNumber : inputPost('billing_phone_number');
-            $data->bAddress = $isSame ? $data->sAddress : inputPost('billing_address');
-            $data->bCountryId = !empty($bCountry) ? $bCountry->id : '';
-            $data->bCountry = !empty($bCountry) ? $bCountry->name : '';
-            $data->bStateId = !empty($bState) ? $bState->id : '';
-            $data->bState = !empty($bState) ? $bState->name : '';
-            $data->bCity = $isSame ? $data->sCity : inputPost('billing_city');
-            $data->bZipCode = $isSame ? $data->sZipCode : inputPost('billing_zip_code');
+            $data->province_id = inputPost('province_id');
+            $data->province_name = inputPost('province_name');
+            $data->city_id = inputPost('city_id');
+            $data->city_name = inputPost('city_name');
+            $data->district_id = inputPost('district_id');
+            $data->district_name = inputPost('district_name');
+            // $data->bTitle = 'Main';
+            // $data->bFirstName = $isSame ? $data->sFirstName : inputPost('billing_first_name');
+            // $data->bLastName = $isSame ? $data->sLastName : inputPost('billing_last_name');
+            // $data->bEmail = $isSame ? $data->sEmail : inputPost('billing_email');
+            // $data->bPhoneNumber = $isSame ? $data->sPhoneNumber : inputPost('billing_phone_number');
+            // $data->bAddress = $isSame ? $data->sAddress : inputPost('billing_address');
+            // $data->bCountryId = !empty($bCountry) ? $bCountry->id : '';
+            // $data->bCountry = !empty($bCountry) ? $bCountry->name : '';
+            // $data->bStateId = !empty($bState) ? $bState->id : '';
+            // $data->bState = !empty($bState) ? $bState->name : '';
+            // $data->bCity = $isSame ? $data->sCity : inputPost('billing_city');
+            // $data->bZipCode = $isSame ? $data->sZipCode : inputPost('billing_zip_code');
         }
 
         $this->builderCarts->where('id', $cartRaw->id)->update(['shipping_data' => safeJsonEncode($data)]);

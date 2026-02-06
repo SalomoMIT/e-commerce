@@ -269,7 +269,7 @@ $routes->post('delete-account-post', 'ProfileController::deleteAccountPost');
 $routes->post('savecourier', 'ProfileController::saveCourier');
 $routes->post('add-shipping-address-post', 'ProfileController::addShippingAddressPost');
 $routes->post('edit-shipping-address-post', 'ProfileController::editShippingAddressPost');
-$routes->post('getprov/', 'ProfileController::getProv');
+$routes->post('getprov', 'ProfileController::getProv');
 $routes->post('getcities/(:num)', 'ProfileController::getCities/$1');
 $routes->post('getdistrict/(:num)', 'ProfileController::getDistrict/$1');
 $routes->post('edit-location-post', 'ProfileController::locationPost');

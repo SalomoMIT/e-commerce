@@ -86,7 +86,7 @@ else: ?>
 endif; ?>
 
 
-<?php if (empty($stateId)): ?>
+<!-- <?php if (empty($stateId)): ?>
     <div id="cartShippingError" class="m-b-15" style="display: none;">
         <div class="alert alert-danger alert-message">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-alert-circle">
@@ -100,8 +100,10 @@ endif; ?>
     <div class="form-group m-t-60 text-right">
         <button type="button" id="btnShowCartShippingError" class="btn btn-lg btn-custom btn-cart-shipping"><?= trans("continue_to_payment_method") ?>&nbsp;&nbsp;<i class="icon-arrow-right m-0"></i></button>
     </div>
-<?php endif; ?>
-
+<?php endif; ?> -->
+<div class="form-group m-t-60 text-right">
+    <button type="submit" id="btnShowCartShippingError" class="btn btn-lg btn-custom btn-cart-shipping"><?= trans("continue_to_payment_method") ?>&nbsp;&nbsp;<i class="icon-arrow-right m-0"></i></button>
+</div>
 
 <div class="row">
     <div class="col-12 m-t-30">

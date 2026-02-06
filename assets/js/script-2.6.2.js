@@ -2314,7 +2314,11 @@ function removeUnsafeCharacters(input) {
 
 //load more products
 var pagePromotedProducts = 1;
-
+$(document).ready(function () {
+    if (typeof selectedCodes !== 'undefined') {
+        $('#courier_select').val(selectedCodes).trigger('change');
+    }
+});
 function loadMorePromotedProducts() {
     $("#load_promoted_spinner").show();
     pagePromotedProducts++;
@@ -2361,24 +2365,51 @@ function loadMorePromotedProducts() {
 //         getCities($("#select_provinces_"+addressPrefix).val(), addressPrefix)
 //     }
 // });
-$('.select2').on('select2:opening', function (e) {
-    const id = this.id;
-    console.log(id,this.value);
+// $('.select2').on('select2:opening', function (e) {
+//     const id = this.id;
+    
 
-    if (id && id.startsWith('select_provinces_')) {
-        console.log("opening", 'select_provinces_');
-        getProv()
-    }
-});
+//     if (id && id.startsWith('select_provinces_')) {
+//         getProv(id.replace("select_provinces",""))
+//     }
+// });
+// $(document).on('change', '.select2', function () {
+//     const val = $(this).val();
+//     const id = this.id.split('_').pop();
+//     console.log(id,val);
+//     if (!val) return;
+//     if (id && id.startsWith('select_provinces_')) {
+//         getCities(val, id);
+//     }
+// });
+
 function getProv(idSuffix = '') {
+    // console.log($('#select_provinces'+idSuffix).siblings('input[name="province_id"]'))
+    // return
     $.ajax({
         type: 'POST',
-        url: generateUrl('savecourier'),
+        url: generateUrl('getprov'),
         data: {
             csrf_token: $('input[name="csrf_token"]').val(),
         },
         success: function (response) {
             console.log(response);
+            const select = document.getElementById("select_provinces"+idSuffix);
+            select.innerHTML = '';
+
+            // if (response.meta.code === 200 && response.data.length > 0) {
+                select.innerHTML += `<option value="">Pilih Provinsi</option>`;
+
+                JSON.parse(response).forEach(item => {
+                    select.innerHTML += `
+                        <option value="${item.id}">
+                            ${item.name}
+                        </option>
+                    `;
+                });
+                $('#select_provinces'+idSuffix).siblings('input[name="province_id"]').val(select.value);
+                $('#select_provinces'+idSuffix).siblings('input[name="province_name"]').val(select.options[select.selectedIndex].text);
+            // }
         }
     });
 }
@@ -2407,8 +2438,8 @@ function getCities(val, idSuffix = '') {
                         </option>
                     `;
                 });
-                $('#select_provinces'+idSuffix).find('input[name="province_id"]').val(provSelect.value);
-                $('#select_provinces'+idSuffix).find('input[name="province_name"]').val(provSelect.options[provSelect.selectedIndex].text);
+                $('#select_provinces'+idSuffix).siblings('input[name="province_id"]').val(provSelect.value);
+                $('#select_provinces'+idSuffix).siblings('input[name="province_name"]').val(provSelect.options[provSelect.selectedIndex].text);
             }
         },
         error: function () {
@@ -2456,7 +2487,7 @@ function getDistrict(val, idSuffix = '') {
                 $citySelect.siblings('input[name="city_id"]').val(selectedCityId);
                 
                 // Update input hidden city_name
-                $citySelect.siblings('input[name="city_name"]').val(selectedCityName);
+                $citySelect.siblings('input[name="city_name"]').val(selectedCityNametext.replace(/\+/g, ' ').trim().replace(/\s+/g, ' '));
 
                 // Debugging di console
                 console.log("Hidden City ID Updated:", $citySelect.siblings('input[name="city_id"]').val());
@@ -2467,6 +2498,174 @@ function getDistrict(val, idSuffix = '') {
             alert("Gagal memuat data distrik")
         }
     });
+}
+$(document).ready(function () {
+    console.log(dataSummary);
+    var hitBE =groupSellerOrigin(dataSummary);
+    
+    console.log(hitBE)
+
+});
+function getItemBeratGram(item) {
+  if (!item.shipping_dimensions) return 0;
+
+  let dim;
+  try {
+    dim = JSON.parse(item.shipping_dimensions);
+  } catch {
+    return 0;
+  }
+
+  const actualKg = parseFloat(dim.weight || 0);
+
+  const p = parseFloat(dim.length || 0);
+  const l = parseFloat(dim.width || 0);
+  const t = parseFloat(dim.height || 0);
+
+  let volumeKg = 0;
+  if (p > 0 && l > 0 && t > 0) {
+    volumeKg = (p * l * t) / 6000;
+  }
+
+  const chargeableKg = Math.max(actualKg, volumeKg);
+
+  const qty = parseInt(item.quantity || 1);
+
+  return Math.round(chargeableKg * 1000 * qty); // gram
+}
+function groupSellerOrigin(data) {
+  const result = [];
+
+  data.forEach(seller => {
+    const map = {};
+
+    seller.items.forEach(item => {
+
+      // RULE SKIP
+      if (item.product_type !== "physical") return;
+      if (!item.origin) return;
+
+      const berat = getItemBeratGram(item);
+      if (berat <= 0) return;
+
+      const origin = item.origin;
+
+      if (!map[origin]) {
+        map[origin] = {
+          item_id:item.id,
+          seller_id: seller.seller_id,
+          seller_username: seller.seller_username,
+          origin: origin,
+          berat: 0,
+          couriers: "sicepat:sap"
+        };
+      }
+
+      map[origin].berat += berat;
+    });
+
+    Object.values(map).forEach(v => result.push(v));
+  });
+
+  return result;
+}
+
+
+function getCitiesGuest(val) {
+    $.ajax({
+        type: 'POST',
+        url: generateUrl('getcities/'+val),
+        data: {
+            csrf_token: $('input[name="csrf_token"]').val()
+        },
+        success: function (response) {
+            const select = document.getElementById("select_cities_guest");
+            const provSelect = document.getElementById("select_province_guest");
+            select.innerHTML = '';
+
+            if (response.meta.code === 200 && response.data.length > 0) {
+                select.innerHTML += `<option value="">Pilih Kota / Kabupaten</option>`;
+
+                response.data.forEach(item => {
+                    select.innerHTML += `
+                        <option value="${item.id}">
+                            ${item.name}
+                        </option>
+                    `;
+                });
+                $('#select_province_guest').siblings('input[name="province_id"]').val(provSelect.value);
+                $('#select_province_guest').siblings('input[name="province_name"]').val(provSelect.options[provSelect.selectedIndex].text);
+            }
+        },
+        error: function () {
+            alert("Gagal memuat data kota")
+        }
+    });
+}
+function getDistrictGuest(val) {
+    $.ajax({
+        type: 'POST',
+        url: generateUrl('getdistrict/'+val),
+        data: {
+            csrf_token: $('input[name="csrf_token"]').val()
+        },
+        success: function (response) {
+            const select = document.getElementById("select_district_guest");
+            const citySelect = document.getElementById("select_cities_guest");
+            const $citySelect = $("#select_cities_guest"); // Versi jQuery untuk ambil hidden input
+
+            // 1. Update Dropdown District (Gunakan jQuery agar UI Select2 sinkron)
+            var $districtSelect = $("#select_district_guest");
+            $districtSelect.empty();
+
+            if (response.meta.code === 200 && response.data.length > 0) {
+                $districtSelect.append('<option value="">Pilih District</option>');
+                response.data.forEach(item => {
+                    $districtSelect.append(new Option(item.name, item.id));
+                });
+                
+                // Render ulang UI Select2 District
+                $districtSelect.trigger('change');
+
+                // --- UPDATE HIDDEN INPUT DISINI ---
+                
+                // Ambil value ID Kota
+                var selectedCityId = $citySelect.val();
+                
+                // Ambil text Nama Kota
+                var selectedCityName = $citySelect.find('option:selected').text();
+
+                // Update input hidden city_id
+                $citySelect.siblings('input[name="city_id"]').val(selectedCityId);
+                
+                // Update input hidden city_name
+                $citySelect.siblings('input[name="city_name"]').val(selectedCityName);
+            }
+        },
+        error: function () {
+            alert("Gagal memuat data distrik")
+        }
+    });
+}function setAddressPickGuest(val) {
+    // Gunakan jQuery selector agar lebih mudah memanipulasi input hidden
+    const $selectDistrict = $("#select_district_guest");
+
+    // Pastikan value tidak kosong (user benar-benar memilih sesuatu)
+    if (val) {
+        // 1. Ambil Nama District dari option yang sedang terpilih
+        // Kita gunakan find('option:selected') agar lebih akurat dengan Select2
+        const selectedName = $selectDistrict.find('option:selected').text();
+
+        // 2. Update value ke input hidden district_id
+        $selectDistrict.siblings('input[name="district_id"]').val(val);
+
+        // 3. Update value ke input hidden district_name
+        $selectDistrict.siblings('input[name="district_name"]').val(selectedName);
+    } else {
+        // Jika user memilih opsi kosong, kosongkan juga hidden input-nya
+        $selectDistrict.siblings('input[name="district_id"]').val('');
+        $selectDistrict.siblings('input[name="district_name"]').val('');
+    }
 }
 $('#btnSaveCourier').on('click', function () {
     let data = $('#courier_select').select2('data');

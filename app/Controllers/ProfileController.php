@@ -556,6 +556,11 @@ class ProfileController extends BaseController
     public function saveCourier(){
         $this->profileModel->saveCourier();
     }
+    public function getProv(){
+        $ongkirService = new OngkirService();
+        $result = $ongkirService->getProvinces('100')["data"];
+        echo json_encode($result);
+    }
     /**
      * Shipping Address
      */
@@ -575,7 +580,6 @@ class ProfileController extends BaseController
         $data['listCourier'] =  $listCourier;
         $data['userSession'] = getUserSession();
         $data['userData'] = $this->profileModel->getProfile(user()->id);
-        print_r($data['userData']);
 
         echo view('partials/_header', $data);
         echo view('settings/shipping_address', $data);

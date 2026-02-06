@@ -336,14 +336,14 @@ function getStates(val) {
 //         }
 //     });
 // }
-$('.select2').on('select2:opening', function (e) {
-    const id = this.id;
-    console.log(id);
+// $('.select2').on('select2:opening', function (e) {
+//     const id = this.id;
+//     console.log(id);
 
-    if (id && id.startsWith('select_provinces_')) {
-        console.log("opening", 'select_provinces_');
-    }
-});
+//     if (id && id.startsWith('select_provinces_')) {
+//         console.log("opening", 'select_provinces_');
+//     }
+// });
 function getCities(val, idSuffix = '') {
     if (idSuffix != '') {
         idSuffix = '_' + idSuffix;

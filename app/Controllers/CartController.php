@@ -149,7 +149,7 @@ class CartController extends BaseController
 
         $profileModel = new ProfileModel();
         $shippingModel = new ShippingModel();
-
+        $ongkirService = new OngkirService();
         $cart = $this->cartModel->getCart();
         if (empty($cart) || !$cart->is_valid) {
             return redirect()->to(generateUrl('cart'));
@@ -165,18 +165,18 @@ class CartController extends BaseController
         }
 
         //check auth for digital products
-        if (!authCheck() && $cart->has_digital_product == true) {
-            setErrorMessage(trans("msg_digital_product_register_error"));
-            return redirect()->to(generateUrl('register'));
-        }
+        // if (!authCheck() && $cart->has_digital_product == true) {
+        //     setErrorMessage(trans("msg_digital_product_register_error"));
+        //     return redirect()->to(generateUrl('register'));
+        // }
 
         //check physical products
         if ($cart->has_physical_product == false) {
             return redirect()->to(generateUrl('cart'));
         }
 
-        $data['cartShippingData'] = !empty($cart->shipping_data) ? json_decode($cart->shipping_data) : null;
-
+        $data['cartShippingData'] = !empty($cart->shipping_data) ? json_decode($cart->shipping_data) : [];
+        // print_r($cart->shipping_data);die();
         $data['shippingAddresses'] = array();
         $data['selectedShippingAddressId'] = 0;
         $data['selectedBillingAddressId'] = 0;
@@ -232,34 +232,25 @@ class CartController extends BaseController
             }
         }
         $data['stateId'] = null;
-        if (!empty($stateId)) {
-            $data['stateId'] = $stateId;
-            
-            // $data['shippingMethods'] = $shippingModel->getSellerShippingMethodsArray($cart->items, $stateId, $cart->currency_code);
-        }
         $data['selectedShippingMethodIds'] = [];
         if (!empty(helperGetSession('mds_selected_shipping_methods'))) {
             $data['selectedShippingMethodIds'] = helperGetSession('mds_selected_shipping_methods');
         }
-        echo json_encode($data['shippingAddresses']);
+        // echo json_encode($data['shippingAddresses']);
         // die();
         //cart seller ids
         $data['cartSellerIds'] = null;
         if (!empty(helperGetSession('mds_array_cart_seller_ids'))) {
             $data['cartSellerIds'] = helperGetSession('mds_array_cart_seller_ids');
         }
-        $data['selectedDestination']=$data['shippingAddresses'][0]->district_id;
-        // var_dump($cart);
-        // die();
+        // print_r($data['shippingAddresses'][0]->district_id);die();
+        $data['selectedDestination']=count($data['shippingAddresses'])>0?$data['shippingAddresses'][0]->district_id:0;
         
         $data['cart'] = $cart;
         $data['groupedSellers'] = $this->groupCartBySeller($cart);
-        // echo json_encode($data['groupedSellers']);
-        // die();
+        $data['states'] = json_decode('[{"id":1,"name":"NUSA TENGGARA BARAT (NTB)"},{"id":2,"name":"MALUKU"},{"id":3,"name":"KALIMANTAN SELATAN"},{"id":4,"name":"KALIMANTAN TENGAH"},{"id":5,"name":"JAWA BARAT"},{"id":6,"name":"BENGKULU"},{"id":7,"name":"KALIMANTAN TIMUR"},{"id":8,"name":"KEPULAUAN RIAU"},{"id":9,"name":"NANGGROE ACEH DARUSSALAM (NAD)"},{"id":10,"name":"DKI JAKARTA"},{"id":11,"name":"BANTEN"},{"id":12,"name":"JAWA TENGAH"},{"id":13,"name":"JAMBI"},{"id":14,"name":"PAPUA"},{"id":15,"name":"BALI"},{"id":16,"name":"SUMATERA UTARA"},{"id":17,"name":"GORONTALO"},{"id":18,"name":"JAWA TIMUR"},{"id":19,"name":"DI YOGYAKARTA"},{"id":20,"name":"SULAWESI TENGGARA"},{"id":21,"name":"NUSA TENGGARA TIMUR (NTT)"},{"id":22,"name":"SULAWESI UTARA"},{"id":23,"name":"SUMATERA BARAT"},{"id":24,"name":"BANGKA BELITUNG"},{"id":25,"name":"RIAU"},{"id":26,"name":"SUMATERA SELATAN"},{"id":27,"name":"SULAWESI TENGAH"},{"id":28,"name":"KALIMANTAN BARAT"},{"id":29,"name":"PAPUA BARAT"},{"id":30,"name":"LAMPUNG"},{"id":31,"name":"KALIMANTAN UTARA"},{"id":32,"name":"MALUKU UTARA"},{"id":33,"name":"SULAWESI SELATAN"},{"id":34,"name":"SULAWESI BARAT"}]');
         foreach ($data['groupedSellers'] as $seller) {
-            $ccc=$this->calculateShippingPerSeller($data['groupedSellers'],$data['selectedDestination'],$this->joinCourierCodes(json_encode($seller->couriers)));
-            // var_dump($ccc[0]->shipping_cost_result);
-            // die();            
+            // $ccc=$this->calculateShippingPerSeller($data['groupedSellers'],$data['selectedDestination'],$this->joinCourierCodes(json_encode($seller->couriers)));         
         }
         echo view('partials/_header', $data);
 
@@ -270,72 +261,6 @@ class CartController extends BaseController
         }
         echo view('partials/_footer');
     }
-    function calculateShippingPerSeller(array $groupedSellers, $destination, $courier)
-    {
-        $ongkirService = new OngkirService();
-
-        foreach ($groupedSellers as &$seller) {
-
-            $origins = [];
-            foreach ($seller->items as $item) {
-                if (!empty($item->origin)) {
-                    $origins[] = $item->origin;
-                }
-            }
-
-            $uniqueOrigins = array_values(array_unique($origins));
-
-            // ==============================
-            // CASE 1: ORIGIN SAMA
-            // ==============================
-            if (count($uniqueOrigins) === 1 && !empty($uniqueOrigins[0])) {
-
-                $origin = $uniqueOrigins[0];
-                $weight = $seller->berat;
-
-                $seller->shipping_mode = 'bulk';
-                
-                $seller->shipping_cost_result =
-                    $ongkirService->calculateShippingCost(
-                        $origin,
-                        $destination,
-                        $weight,
-                        $courier
-                    );
-
-            }
-            // ==============================
-            // CASE 2: ORIGIN BERBEDA
-            // ==============================
-            else {
-
-                $seller->shipping_mode = 'per_item';
-                $seller->shipping_cost_result = [];
-
-                foreach ($seller->items as $item) {
-
-                    if (empty($item->origin)) continue;
-
-                    $weight = $item->chargeable_weight ?? 1;
-
-                    $result = $ongkirService->calculateShippingCost(
-                        $item->origin,
-                        $destination,
-                        $weight,
-                        $courier
-                    );
-
-                    $seller->shipping_cost_result[] = [
-                        'item_id' => $item->id,
-                        'origin' => $item->origin,
-                        'result' => $result
-                    ];
-                }
-            }
-        }
-        // print_r($groupedSellers[0]->shipping_cost_result);
-        return $groupedSellers;
-    }
     function groupCartBySeller(object $cart): array
     {
         $result = [];
@@ -343,10 +268,9 @@ class CartController extends BaseController
         if (!isset($cart->items) || !is_array($cart->items)) {
             return $result;
         }
-
+        // print_r($cart->items[0]); die();
         foreach ($cart->items as $item) {
             $sellerId = $item->seller_id;
-
             if (!isset($result[$sellerId])) {
                 $result[$sellerId] = (object) [
                     'seller_id' => $sellerId,
@@ -354,8 +278,10 @@ class CartController extends BaseController
                     'seller_slug' => $item->seller_slug ?? null,
                     'items' => [],
                     'subtotal' => 0,
+                    'origin' => $item->origin,
                     'shipping_dimensions'=>$item->shipping_dimensions,
                     'berat'=>$this->calculateChargeableWeightFromJson($item->shipping_dimensions),
+                    'origin'=>$item->origin,
                     'total_weight' => 0,
                     'couriers' => [] // hanya di seller
                 ];
