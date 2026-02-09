@@ -2499,10 +2499,89 @@ function getDistrict(val, idSuffix = '') {
         }
     });
 }
+function hitungTotalOngkir(courierList) {
+    if (!Array.isArray(courierList)) return 0;
+
+    let total = 0;
+
+    courierList.forEach(item => {
+        const cost = Number(item.cost) || 0;
+        total += cost;
+    });
+    totalShip = total;
+    $("#totalShipping").text("Rp"+new Intl.NumberFormat('id-ID').format(totalShip));
+    return total;
+}
+
+function ongkirOnChange (el) {
+    const opt = el.options[el.selectedIndex];
+    const obj = JSON.parse(opt.dataset.json);
+    console.log(obj);
+    const idx = selectedKurir.findIndex(x => x.id === obj.id);
+
+    if (idx !== -1) {
+        // sudah ada → timpa
+        selectedKurir[idx] = obj;
+    } else {
+        // belum ada → push
+        selectedKurir.push(obj);
+    }
+    console.log("selectedKurir",JSON.stringify(selectedKurir))
+    hitungTotalOngkir(selectedKurir);
+}
+function getOngkir(id,origin, destination, weight, courier) {
+    // Ambil token CSRF dari input hidden atau meta tag
+    var csrfName = 'csrf_test_name'; // Sesuaikan dengan config/App.php CI4 Anda
+    var csrfHash = $('input[name="csrf_test_name"]').val(); 
+    console.log(id)
+    $.ajax({
+        type: 'POST',
+        url: generateUrl('cart/getOngkirCost'), // Gunakan route yang mengarah ke getCourierFee
+        data: {
+            [csrfName]: csrfHash, // Payload CSRF
+            origin: origin,       // Sesuai rules: 'required|string'
+            destination: destination,
+            weight: weight,       // Sesuai rules: 'numeric'
+            courier: courier      // Sesuai rules: 'string'
+        },
+        dataType: 'json',
+        success: function (response) {
+            console.log("Data Ongkir:", response);
+            var selectOngkir =document.getElementById("select_ongkir_"+id);
+            if (response.meta.code === 200 && response.data.length > 0) {
+                selectOngkir.innerHTML += `<option value="">Pilih Kurir</option>`;
+                response.data.forEach(item => {
+                    selectOngkir.innerHTML += `
+                        <option value="${item.service}" data-json='${JSON.stringify({...item,id})}'>
+                            ${item.name + ' (' + item.service + ') '} ${item.etd} - ${item.cost}
+                        </option>
+                    `;
+                });
+            }
+
+            // Lakukan manipulasi DOM di sini (misal: tampilkan list harga)
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                var errors = xhr.responseJSON.errors;
+                console.log("Validasi Gagal:", errors);
+                alert("Harap lengkapi data pengiriman!");
+            } else {
+                alert("Gagal memuat data ongkir: " + xhr.statusText);
+            }
+        }
+    });
+}
 $(document).ready(function () {
-    console.log(dataSummary);
     var hitBE =groupSellerOrigin(dataSummary);
-    
+    hitBE.forEach(v=> {
+        getOngkir(v.item_id,
+            v.origin,
+            selectedDestination,
+            v.berat,
+            v.couriers
+        );
+    });
     console.log(hitBE)
 
 });
@@ -2542,6 +2621,10 @@ function groupSellerOrigin(data) {
     seller.items.forEach(item => {
 
       // RULE SKIP
+      if (item.product_type !== "physical" || !item.origin) {
+        console.log("Ini ke skip apa enggak:",item.product_type);
+        return;
+      }
       if (item.product_type !== "physical") return;
       if (!item.origin) return;
 

@@ -1,141 +1,117 @@
 <div class="col-sm-12 col-lg-6 order-summary-container">
-    <h2 class="cart-section-title"><?= trans("order_summary"); ?> (<?= esc($cart->num_items); ?>)</h2>
-    <div class="right">
-        <div class="cart-order-details" style="max-height:500px; overflow-y:auto;">
+    <h2 style="border-bottom:2px solid #f0f0f0;padding-bottom:15px;margin-bottom:20px;">
+        <i class="fas fa-receipt"></i>
+        <?= trans("order_summary"); ?>
+        <span class="badge ms-2" style="background:#00a99d">
+            <strong><?= esc($cart->num_items); ?></strong>
+        </span>
+    </h2>
+
+    <div style="background:transparent;">
+        <!-- LIST ITEM -->
+        <div style="max-height:400px;overflow-y:auto;padding:0 8px;">
             <?php if (!empty($groupedSellers)):
                 foreach ($groupedSellers as $sellerGroup): ?>
-                <div style="background-color:white">
-                    <div class="row-custom m-t-15 m-b-10">
+                <div style="background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:15px;margin-bottom:20px;">
+                    
+                    <div style="display:flex;align-items:center;margin-bottom:15px;padding-bottom:12px;border-bottom:2px solid #f0f0f0;">
+                        <i class="fas fa-store" style="color:#007bff;margin-right:8px;"></i>
                         <strong>
-                            <?= trans("seller"); ?> :
-                            <a href="<?= generateProfileUrl($sellerGroup->seller_slug); ?>">
+                            <?= trans("seller"); ?>:
+                            <a href="<?= generateProfileUrl($sellerGroup->seller_slug); ?>" style="color:#007bff;text-decoration:none;">
                                 <?= esc($sellerGroup->seller_username); ?>
                             </a>
                         </strong>
                     </div>
 
-                    <?php foreach ($sellerGroup->items as $cartItem): ?>                    
-                        <div class="item">
-                            <div class="item-left">
-                                <a href="<?= esc($cartItem->product_url); ?>">
-                                    <div class="product-image-box product-image-box-xs">
-                                        <img data-src="<?= getOrderImageUrl($cartItem->product_image_data, $cartItem->product_id); ?>" 
-                                            alt="<?= esc($cartItem->product_title); ?>" 
-                                            class="lazyload img-fluid img-product">
-                                    </div>
-                                </a>
-                            </div>
-
-                            <div class="item-right">
-                                <?php if ($cartItem->product_type == 'digital'): ?>
-                                    <div class="list-item">
-                                        <label class="badge badge-success-light badge-instant-download">
-                                            ...svg...
-                                            <?= trans("instant_download"); ?>
-                                        </label>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="list-item">
-                                    <a href="<?= esc($cartItem->product_url); ?>">
-                                        <?= esc($cartItem->product_title); ?>
-                                    </a>
-                                </div>
-
-                                <?php if (!empty($cartItem->product_options_summary)): ?>
-                                    <div class="product-variant-info">
-                                        <?= $cartItem->product_options_summary; ?>
-                                    </div>
-                                <?php endif; ?>
-
-                                <div class="list-item m-t-15">
-                                    <label><?= trans("quantity"); ?>:</label>
-                                    <strong class="lbl-price"><?= $cartItem->quantity; ?></strong>
-                                </div>
-
-                                <div class="list-item">
-                                    <label><?= trans("price"); ?>:</label>
-                                    <strong class="lbl-price">
-                                        <?= priceDecimal($cartItem->total_price, $cart->currency_code); ?>
-                                    </strong>
-                                </div>
-                                <div id="itemId_<?= $cartItem->id ?>" class="list-item mb-2">
-                                    <label class="form-label mb-1 fw-semibold">
-                                        <?= trans("Courier"); ?>
-                                    </label>
-                                    <strong class="lbl-price">
-                                    <select 
-                                        id="select_province_guest_<?= $cartItem->id ?>" 
-                                        class="form-select select2"
-                                        onchange="getCitiesGuest(this.value,'');" 
-                                        required
-                                    >
-                                        <option value="">Pilih Kurir</option>
-                                    </select>
-                                    </strong>
-                                </div>
-                                <?php if (!empty($cartItem->product_vat) && $cartItem->product_vat > 0): ?>
-                                    <div class="list-item">
-                                        <label><?= trans("vat"); ?>&nbsp;(<?= $cartItem->product_vat_rate; ?>%):</label>
-                                        <strong><?= priceDecimal($cartItem->product_vat, $cart->currency_code); ?></strong>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
+                    <?php foreach ($sellerGroup->items as $cartItem): ?>
+                    <div style="display:flex;gap:12px;padding:12px;border:1px solid #f0f0f0;border-radius:6px;margin-bottom:12px;">
+                        
+                        <div style="width:80px;height:80px;flex-shrink:0;">
+                            <img src="<?= getOrderImageUrl($cartItem->product_image_data, $cartItem->product_id); ?>"
+                                 style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
                         </div>
+
+                        <div style="flex:1;">
+                            <strong style="display:block;margin-bottom:6px;">
+                                <?= esc($cartItem->product_title); ?>
+                            </strong>
+
+                            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                <div>
+                                    <small><?= trans("quantity"); ?></small><br>
+                                    <strong><?= $cartItem->quantity; ?></strong>
+                                </div>
+                                <div style="text-align:right;">
+                                    <small><?= trans("price"); ?></small><br>
+                                    <strong style="color:#00a99d;">
+                                        <?= $cart->currency_code ?><?= priceDecimal($cartItem->total_price, $cart->currency_code); ?>
+                                    </strong>
+                                </div>
+                            </div>
+
+                            <?php if ($cartItem->product_type == 'physical'): ?>
+                            <div style="background:#f0f7ff;border:1px solid #b3d9ff;border-radius:6px;padding:10px;">
+                                <label style="font-weight:600;font-size:13px;">
+                                    <i class="fas fa-truck"></i> <?= trans("Courier"); ?>
+                                </label>
+                                <select id="select_ongkir_<?= $cartItem->id ?>" class="form-select select2" onchange="ongkirOnChange(this)" style="width:100%;">
+                                    <option value="">-- <?= trans("select"); ?> --</option>
+                                </select>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                     <?php endforeach; ?>
+
                 </div>
-            <?php endforeach;
-            endif; ?>
+            <?php endforeach; endif; ?>
         </div>
-        <div class="row-custom m-t-30 m-b-10">
-            <strong><?= trans("subtotal"); ?><span class="float-right"><?= priceDecimal($cart->totals->subtotal, $cart->currency_code); ?></span></strong>
+
+        <!-- SUMMARY -->
+        <div style="padding:15px;background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;margin-top:10px;">
+            
+            <!-- SUBTOTAL -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                <span><?= trans("subtotal"); ?></span>
+                <strong><?= priceDecimal($cart->totals->subtotal, $cart->currency_code); ?></strong>
+            </div>
+
+            <?php if (!empty($cart->totals->vat)): ?>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;background:#e8f4f8;">
+                <span><?= trans("vat"); ?></span>
+                <strong><?= priceDecimal($cart->totals->vat, $cart->currency_code); ?></strong>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!empty($cart->totals->shipping_cost)): ?>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;margin:8px 0;background:#e8f4f8;border-radius:4px;">
+                <span style="color:#00a99d;">
+                    <i class="fas fa-truck"></i> <?= trans("shipping"); ?>
+                </span>
+                <strong id="totalShipping" style="color:#00a99d;">
+                    Rp. 0
+                </strong>
+            </div>
+            <?php endif; ?>
+
+            <!-- TOTAL -->
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #333;padding-top:15px;">
+                <span style="font-size:16px;font-weight:700;">
+                    <?= trans("total"); ?>
+                </span>
+                <strong style="font-size:18px;color:#00a99d;">
+                    <?= priceDecimal($cart->totals->total, $cart->currency_code); ?>
+                </strong>
+            </div>
+
         </div>
-        <?php if ($cart->totals->affiliate_discount > 0): ?>
-            <div class="row-custom m-b-10">
-                <strong><?= trans("referral_discount"); ?>&nbsp;(<?= $cart->totals->affiliate_discount_rate; ?>%)<span class="float-right">-&nbsp;<?= priceDecimal($cart->totals->affiliate_discount, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php endif;
-        if (!empty($cart->totals->vat) && $cart->totals->vat > 0):?>
-            <div class="row-custom m-b-10">
-                <strong><?= trans("vat"); ?><span class="float-right"><?= priceDecimal($cart->totals->vat, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php endif;
-        if (!empty($cart->totals->shipping_cost) && $cart->totals->shipping_cost > 0): ?>
-            <div class="row-custom m-b-10">
-                <strong><?= trans("shipping"); ?><span class="float-right"><?= priceDecimal($cart->totals->shipping_cost, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php endif;
-        if (!empty($cart->coupon_code)): ?>
-            <div class="row-custom m-b-10">
-                <strong><?= trans("coupon"); ?>&nbsp;&nbsp;[<?= esc($cart->coupon_code); ?>]&nbsp;&nbsp;<a href="javascript:void(0)" class="font-weight-normal" onclick="removeCartDiscountCoupon();">[<?= trans("remove"); ?>]</a><span class="float-right">-&nbsp;<?= priceDecimal($cart->totals->coupon_discount, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php endif;
-        if (!empty($cart->totals->global_taxes_array)):
-            foreach ($cart->totals->global_taxes_array as $taxItem):?>
-                <div class="row-custom m-b-10">
-                    <strong><?= esc(getTaxName($taxItem['taxNameArray'], selectedLangId())); ?>&nbsp;(<?= $taxItem['taxRate']; ?>%)<span class="float-right"><?= priceDecimal($taxItem['taxTotal'], $cart->currency_code); ?></span></strong>
-                </div>
-            <?php endforeach;
-        endif;
-        if (!empty($cart->totals->transaction_fee)): ?>
-            <div class="row-custom m-b-15">
-                <strong><?= trans("transaction_fee"); ?><?= $cart->totals->transaction_fee_rate ? ' (' . numToDecimal($cart->totals->transaction_fee_rate) . '%)' : ''; ?><span class="float-right"><?= priceDecimal($cart->totals->transaction_fee, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php endif; ?>
-        <div class="row-custom">
-            <p class="line-seperator"></p>
-        </div>
-        <?php if (!empty($cart->totals->shipping_cost)): ?>
-            <div class="row-custom">
-                <strong><?= trans("total"); ?><span class="float-right"><?= priceDecimal($cart->totals->total, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php else: ?>
-            <div class="row-custom">
-                <strong><?= trans("total"); ?><span class="float-right"><?= priceDecimal($cart->totals->total_before_shipping, $cart->currency_code); ?></span></strong>
-            </div>
-        <?php endif; ?>
     </div>
 </div>
+
 <script>
-    var dataSummary = <?= json_encode($groupedSellers) ?>
+    var dataSummary = <?= json_encode($groupedSellers) ?>;
+    var selectedKurir = [];
+    var selectedDestination = <?= $selectedDestination ?>;
+    var totalShip = 0;
 </script>

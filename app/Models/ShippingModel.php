@@ -21,78 +21,7 @@ class ShippingModel extends BaseModel
      * Cart
      * --------------------------------------------------------------------
      */
-    public function getCourierFee($districtId)
-    {
-        helper(['form']);
-
-        $rules = [
-            'origin' => 'required|string',
-            'destination' => 'required|string',
-            'weight' => 'required|numeric',
-            'courier' => 'required|string',
-        ];
-
-        if (!$this->validate($rules)) {
-            return $this->response->setStatusCode(422)->setJSON([
-                'success' => false,
-                'message' => 'Validation error',
-                'errors' => $this->validator->getErrors()
-            ]);
-        }
-
-        $origin = $this->request->getPost('origin');
-        $destination = $this->request->getPost('destination');
-        $weight = $this->request->getPost('weight');
-        $courier = $this->request->getPost('courier');
-
-        $client = \Config\Services::curlrequest();
-
-        try {
-            $response = $client->post(
-                rtrim($_ENV['CALCULATE_DELIVERY_COST']),
-                [
-                    'headers' => [
-                        'accept' => 'application/json',
-                        'content-type' => 'application/x-www-form-urlencoded',
-                        'key' => $this->apiKey,
-                    ],
-                    'form_params' => [
-                        'origin' => $origin,
-                        'destination' => $destination,
-                        'weight' => $weight,
-                        'courier' => $courier,
-                    ],
-                ]
-            );
-
-            // Logging
-            log_message('info', 'Request data: ' . json_encode([
-                'origin' => $origin,
-                'destination' => $destination,
-                'weight' => $weight,
-                'courier' => $courier,
-                'key' => $this->apiKey
-            ]));
-
-            $statusCode = $response->getStatusCode();
-            $body = json_decode($response->getBody(), true);
-
-            if ($statusCode === 200) {
-                return $this->response->setJSON($body);
-            }
-
-            return $this->response->setStatusCode(500)->setJSON([
-                'error' => 'Request failed',
-                'message' => $body
-            ]);
-
-        } catch (\Exception $e) {
-            return $this->response->setStatusCode(500)->setJSON([
-                'error' => 'Exception',
-                'message' => $e->getMessage()
-            ]);
-        }
-    }
+    
     //get seller shipping methods array
     public function getSellerShippingMethodsArray($cartItems, $stateId, $currencyCode)
     {

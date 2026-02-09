@@ -422,9 +422,9 @@ endif; ?>
 endif; ?> -->
 
 <?php if (!empty($cartShippingData->sStateId)): ?>
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function () {
             getShippingFeeByDistrict(<?= esc($selectedStateId); ?>);
         });
-    </script>
+    </script> -->
 <?php endif; ?>

@@ -31,6 +31,7 @@ class CartController extends BaseController
         if ($methodName !== 'payment') {
             helperSetSession('mds_cart_has_changed', 1);
         }
+        $this->apiKey  = $_ENV['ONGKIR_API_KEY'];
     }
 
     /**
@@ -136,7 +137,123 @@ class CartController extends BaseController
         $this->cartModel->applyCoupon($couponCode);
         return redirect()->to(generateUrl('cart'));
     }
+    public function getCourierFee()
+    {
+        helper(['form']);
 
+        $rules = [
+            'origin' => 'required|string',
+            'destination' => 'required|string',
+            'weight' => 'required|numeric',
+            'courier' => 'required|string',
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $this->validator->getErrors()
+            ]);
+        }
+
+        $origin = $this->request->getPost('origin');
+        $destination = $this->request->getPost('destination');
+        $weight = $this->request->getPost('weight');
+        $courier = $this->request->getPost('courier');
+
+        $client = \Config\Services::curlrequest();
+
+        try {
+            $response = $client->post(
+                rtrim($_ENV['CALCULATE_DELIVERY_COST']),
+                [
+                    'headers' => [
+                        'accept' => 'application/json',
+                        'content-type' => 'application/x-www-form-urlencoded',
+                        'key' => $this->apiKey,
+                    ],
+                    'form_params' => [
+                        'origin' => $origin,
+                        'destination' => $destination,
+                        'weight' => $weight,
+                        'courier' => $courier,
+                    ],
+                ]
+            );
+
+            $statusCode = $response->getStatusCode();
+            $body = json_decode($response->getBody(), true);
+
+            if ($statusCode === 200) {
+                return $this->response->setJSON($body);
+            }
+
+            return $this->response->setStatusCode(500)->setJSON([
+                'error' => 'Request failed',
+                'message' => $body
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'error' => 'Exception',
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+    public function getOngkirCost()
+    {
+        // return $this->getCourierFee();
+        return '{
+    "meta": {
+        "message": "Success Calculate Domestic Shipping cost",
+        "code": 200,
+        "status": "success"
+    },
+    "data": [
+        {
+            "name": "Satria Antaran Prima",
+            "code": "sap",
+            "service": "DRGREG",
+            "description": "Cargo",
+            "cost": 27500,
+            "etd": "2-4 day"
+        },
+        {
+            "name": "Satria Antaran Prima",
+            "code": "sap",
+            "service": "UDRREG",
+            "description": "Reguler",
+            "cost": 40500,
+            "etd": "1-3 day"
+        },
+        {
+            "name": "Satria Antaran Prima",
+            "code": "sap",
+            "service": "UDRONS",
+            "description": "Nextday",
+            "cost": 69000,
+            "etd": "1-2 day"
+        },
+        {
+            "name": "SiCepat Express",
+            "code": "sicepat",
+            "service": "GOKIL",
+            "description": "Cargo Per Kg (Minimal 10kg)",
+            "cost": 35000,
+            "etd": "2-3 day"
+        },
+        {
+            "name": "SiCepat Express",
+            "code": "sicepat",
+            "service": "REG",
+            "description": "Reguler",
+            "cost": 21000,
+            "etd": "1-2 day"
+        }
+    ]
+}';
+        
+    }
     /**
      * Shipping
      */
@@ -253,7 +370,7 @@ class CartController extends BaseController
             // $ccc=$this->calculateShippingPerSeller($data['groupedSellers'],$data['selectedDestination'],$this->joinCourierCodes(json_encode($seller->couriers)));         
         }
         echo view('partials/_header', $data);
-
+        
         if (authCheck()) {
             echo view('cart/shipping_information', $data);
         } else {
@@ -268,7 +385,6 @@ class CartController extends BaseController
         if (!isset($cart->items) || !is_array($cart->items)) {
             return $result;
         }
-        // print_r($cart->items[0]); die();
         foreach ($cart->items as $item) {
             $sellerId = $item->seller_id;
             if (!isset($result[$sellerId])) {
