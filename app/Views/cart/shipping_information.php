@@ -29,7 +29,7 @@
                                                                     <div class="shipping-address-box shipping-address-box-cart">
                                                                         <div class="custom-control custom-radio">
                                                                             <input type="radio" class="custom-control-input" id="option_shipping_address_<?= $address->id; ?>" name="shipping_address_id" value="<?= $address->id; ?>"
-                                                                                <?= $address->isdefault==1 ? 'checked' : ''; ?> onchange="getShippingFeeByDistrict('<?= $address->state_id; ?>');" required>
+                                                                                <?= $address->district_id==$selectedDestination ? 'checked' : ''; ?> onchange="changeShippingAddress('<?= $address->district_id; ?>');" required>
                                                                             <label class="custom-control-label" for="option_shipping_address_<?= $address->id; ?>">
                                                                                 <strong class="m-b-5"><?= esc($address->title); ?></strong>
                                                                                 <p>

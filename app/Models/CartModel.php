@@ -1113,7 +1113,7 @@ class CartModel extends BaseModel
 
         return $totalItems;
     }
-
+    
     //set shipping data
     public function setShippingData($cartRaw)
     {

@@ -104,7 +104,30 @@
                     <?= priceDecimal($cart->totals->total, $cart->currency_code); ?>
                 </strong>
             </div>
-
+            <div style="margin-top:18px;">
+                <button
+                    type="button"
+                    onclick="payNow()"
+                    style="
+                        width:100%;
+                        background:#00a99d;
+                        color:#fff;
+                        border:none;
+                        padding:14px 16px;
+                        font-size:16px;
+                        font-weight:700;
+                        border-radius:6px;
+                        cursor:pointer;
+                        box-shadow:0 3px 8px rgba(0,0,0,0.15);
+                        transition:all .2s ease;
+                    "
+                    onmouseover="this.style.background='#008f85'"
+                    onmouseout="this.style.background='#00a99d'"
+                >
+                    <i class="fas fa-credit-card" style="margin-right:6px;"></i>
+                    Pay / Bayar
+                </button>
+            </div>
         </div>
     </div>
 </div>

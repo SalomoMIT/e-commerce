@@ -259,6 +259,7 @@ class CartController extends BaseController
      */
     public function shipping()
     {
+        $selectedDistrictId=inputGet('district_id')??'';
         $data = setPageMeta(trans("shopping_cart"));
         $data['isTranslatable'] = true;
 
@@ -360,8 +361,8 @@ class CartController extends BaseController
         if (!empty(helperGetSession('mds_array_cart_seller_ids'))) {
             $data['cartSellerIds'] = helperGetSession('mds_array_cart_seller_ids');
         }
-        // print_r($data['shippingAddresses'][0]->district_id);die();
-        $data['selectedDestination']=count($data['shippingAddresses'])>0?$data['shippingAddresses'][0]->district_id:0;
+        // print_r($data['shippingAddresses']);die();
+        $data['selectedDestination']=$selectedDistrictId==''?$data['shippingAddresses'][0]->district_id:$selectedDistrictId;
         
         $data['cart'] = $cart;
         $data['groupedSellers'] = $this->groupCartBySeller($cart);
@@ -658,7 +659,13 @@ class CartController extends BaseController
 
         return redirect()->to(generateUrl('cart', 'payment'));
     }
-
+    public function paymentCheckout(){
+        // print_r(inputPost('selectedKurir'));
+        $totalCost = array_sum(array_column($results, 'cost'));
+        // print_r(inputPost('selectedDestination'));
+        $data['cart'] = $this->cartModel->getCart(true, true);
+        // print_r($data['cart']);
+    }
     /**
      * Prepare and display the payment page.
      */

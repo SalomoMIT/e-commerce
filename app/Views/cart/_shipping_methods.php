@@ -101,9 +101,9 @@ endif; ?>
         <button type="button" id="btnShowCartShippingError" class="btn btn-lg btn-custom btn-cart-shipping"><?= trans("continue_to_payment_method") ?>&nbsp;&nbsp;<i class="icon-arrow-right m-0"></i></button>
     </div>
 <?php endif; ?> -->
-<div class="form-group m-t-60 text-right">
+<!-- <div class="form-group m-t-60 text-right">
     <button type="submit" id="btnShowCartShippingError" class="btn btn-lg btn-custom btn-cart-shipping"><?= trans("continue_to_payment_method") ?>&nbsp;&nbsp;<i class="icon-arrow-right m-0"></i></button>
-</div>
+</div> -->
 
 <div class="row">
     <div class="col-12 m-t-30">

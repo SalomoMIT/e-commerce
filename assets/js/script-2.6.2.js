@@ -1754,29 +1754,45 @@ $(document).on("click", ".btn-modal-location-product", function () {
 });
 
 //get shipping methods by location
-function getShippingFeeByDistrict(districtId) {
-    $('#cart_shipping_methods_container').hide();
-    $('.cart-shipping-loader').show();
-    var data = {
-        'districtId': districtId,
-    };
-    $.ajax({
-        type: 'POST',
-        url: generateUrl('Cart/getShippingFeeByDistrict'),
-        data: data,
-        success: function (response) {
-            if (response.result == 1) {
-                document.getElementById("cart_shipping_methods_container").innerHTML = response.htmlContent;
-                setTimeout(function () {
-                    $('#cart_shipping_methods_container').show();
-                    $('.cart-shipping-loader').hide();
-                }, 400);
-            }
-        },
-        error:()=>{
-            $('#cart_shipping_methods_container').show();
-        }
-    });
+function changeShippingAddress(districtId) {
+    console.log(districtId);
+    window.location.href = generateUrl('cart/shipping') + '?district_id=' + districtId;
+    // $.ajax({
+    //     type: 'POST',
+    //     url: generateUrl('cart/shipping'),
+    //     data: {"district_id":districtId},
+    //     success: function (response) {
+    //         if (response.result == 1) {
+    //             district_id
+    //         }
+    //     },
+    //     error:()=>{
+    //         $('#cart_shipping_methods_container').show();
+    //     }
+    // });
+
+    // $('#cart_shipping_methods_container').hide();
+    // $('.cart-shipping-loader').show();
+    // var data = {
+    //     'districtId': districtId,
+    // };
+    // $.ajax({
+    //     type: 'POST',
+    //     url: generateUrl('Cart/getShippingFeeByDistrict'),
+    //     data: data,
+    //     success: function (response) {
+    //         if (response.result == 1) {
+    //             document.getElementById("cart_shipping_methods_container").innerHTML = response.htmlContent;
+    //             setTimeout(function () {
+    //                 $('#cart_shipping_methods_container').show();
+    //                 $('.cart-shipping-loader').hide();
+    //             }, 400);
+    //         }
+    //     },
+    //     error:()=>{
+    //         $('#cart_shipping_methods_container').show();
+    //     }
+    // });
 };
 
 $(document).on("click", "#btnShowCartShippingError", function () {
@@ -2447,6 +2463,29 @@ function getCities(val, idSuffix = '') {
         }
     });
 }
+function payNow() {
+    const countSelectOngkir = document.querySelectorAll('[id^="select_ongkir_"]').length;
+    if(countSelectOngkir !== selectedKurir.length) {
+        alert("Harap pilih ongkir untuk semua seller dan semua item");
+        return;
+    } else {
+        var data={"selectedKurir":selectedKurir,"selectedDestination":selectedDestination}
+        $.ajax({
+            type: 'POST',
+            url: generateUrl('cart/payment'),
+            data: {
+                csrf_token: $('input[name="csrf_token"]').val(),
+                ...data
+            },
+            success: function (response) {
+                console.log("Ini result",response)
+            },
+            error: function () {
+                alert("Gagal submit payment")
+            }
+        });
+    }
+}
 function getDistrict(val, idSuffix = '') {
     if (idSuffix != '') {
         idSuffix = '_' + idSuffix;
@@ -2572,8 +2611,10 @@ function getOngkir(id,origin, destination, weight, courier) {
         }
     });
 }
+// let dataSummary;
 $(document).ready(function () {
-    var hitBE =groupSellerOrigin(dataSummary);
+    // if(dataSummary === undefined) return;
+    var hitBE = groupSellerOrigin(dataSummary);
     hitBE.forEach(v=> {
         getOngkir(v.item_id,
             v.origin,
@@ -2582,8 +2623,7 @@ $(document).ready(function () {
             v.couriers
         );
     });
-    console.log(hitBE)
-
+    console.log(hitBE);
 });
 function getItemBeratGram(item) {
   if (!item.shipping_dimensions) return 0;
