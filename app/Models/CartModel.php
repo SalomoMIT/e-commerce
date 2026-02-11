@@ -87,7 +87,7 @@ class CartModel extends BaseModel
     }
     public function saveCheckoutFromCart(object $cart): ?object
     {
-        echo json_encode($cart);die();
+        echo json_encode($cart);
         if (empty($cart) || empty($cart->is_valid) || empty($cart->payment_method)) {
             return null;
         }
@@ -96,7 +96,7 @@ class CartModel extends BaseModel
 
         $paymentMethod = $cart->payment_method;
         $checkoutToken = generateUuidV4();
-
+        die();
         // Convert numbers to string before assigning safely
         try {
             foreach ($cart->totals as $key => $value) {

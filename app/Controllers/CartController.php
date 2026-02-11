@@ -667,8 +667,8 @@ class CartController extends BaseController
         // $totalCost = array_sum(array_column($results, 'cost'));
         // print_r(inputPost('selectedDestination'));
         $cart = $this->cartModel->getCart(true, true);
-        
-        $this->cartModel->saveCheckoutFromCart($cart);
+        $cart->selectedKurir=inputPost('selectedKurir');
+        // $this->cartModel->saveCheckoutFromCart($cart);
         // print_r($data['cart']);
     }
     /**
