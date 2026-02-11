@@ -11,6 +11,8 @@ class CartModel extends BaseModel
 
         $this->builderCarts = $this->db->table('carts');
         $this->builderCartItems = $this->db->table('cart_items');
+        $this->builderCheckouts = $this->db->table('checkouts');
+        $this->builderPaymentMethods = $this->db->table('payment_method');
     }
 
     //finds an existing active cart or creates a new one
@@ -79,7 +81,114 @@ class CartModel extends BaseModel
 
         return null;
     }
+    public function getActivePaymentMethods()
+    {
+        return $this->builderPaymentMethods->where('active', 1)->get()->getResult();
+    }
+    public function saveCheckoutFromCart(object $cart): ?object
+    {
+        echo json_encode($cart);die();
+        if (empty($cart) || empty($cart->is_valid) || empty($cart->payment_method)) {
+            return null;
+        }
 
+        $this->db->transStart();
+
+        $paymentMethod = $cart->payment_method;
+        $checkoutToken = generateUuidV4();
+
+        // Convert numbers to string before assigning safely
+        try {
+            foreach ($cart->totals as $key => $value) {
+                if (is_numeric($value)) {
+                    $cart->totals->$key = (string)$value;
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
+        // Prepare checkout data from the validated cart object.
+        $checkoutData = [
+            'cart_id' => $cart->id,
+            'user_id' => $cart->user_id,
+            'session_id' => $cart->session_id,
+            'checkout_token' => $checkoutToken,
+            'checkout_type' => 'product',
+            'payment_method' => $paymentMethod,
+            'subtotal' => numToDecimal($cart->totals->subtotal),
+            'shipping_cost' => numToDecimal($cart->totals->shipping_cost ?? 0),
+            'grand_total' => numToDecimal($cart->totals->total),
+            'grand_total_base' => numToDecimal(convertToDefaultCurrency($cart->totals->total, $cart->currency_code)),
+            'currency_code' => $cart->currency_code,
+            'currency_code_base' => $cart->currency_code_base,
+            'exchange_rate' => $cart->exchange_rate ?? 1.0,
+            'cart_totals_data' => safeJsonEncode($cart->totals),
+            'shipping_data' => sanitizeJsonString($cart->shipping_data),
+            'shipping_cost_data' => sanitizeJsonString($cart->shipping_cost_data),
+            'coupon_code' => $cart->coupon_code,
+            'has_physical_product' => $cart->has_physical_product,
+            'has_digital_product' => $cart->has_digital_product,
+            'status' => self::STATUS_PENDING,
+            'expires_at' => date('Y-m-d H:i:s', time() + 3600),
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if ($paymentMethod === 'bank_transfer') {
+            $checkoutData['transaction_number'] = $this->generateTransactionNumber();
+        } elseif ($paymentMethod === 'wallet_balance') {
+            $checkoutData['transaction_number'] = $this->generateTransactionNumber('WLT');
+        }
+
+        $this->builderCheckouts->insert($checkoutData);
+        $checkoutId = $this->db->insertID();
+
+        if (!$checkoutId) {
+            $this->db->transRollback();
+            return null;
+        }
+
+        // Prepare checkout items
+        $orderModel = new OrderModel();
+        $checkoutItems = [];
+        foreach ($cart->items as $item) {
+
+            $productCommissionRate = $orderModel->getProductCommissionRate($item->product_id);
+
+            $checkoutItems[] = [
+                'checkout_id' => $checkoutId,
+                'product_id' => $item->product_id,
+                'seller_id' => $item->seller_id,
+                'product_type' => $item->product_type,
+                'listing_type' => $item->listing_type,
+                'product_title' => $item->product_title,
+                'product_sku' => $item->product_sku,
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'total_price' => $item->total_price,
+                'product_vat' => $item->product_vat,
+                'product_vat_rate' => $item->product_vat_rate,
+                'product_image_id' => $item->product_image_id,
+                'product_image_data' => $item->product_image_data,
+                'quote_request_id' => $item->quote_request_id,
+                'product_options_snapshot' => $item->product_options_snapshot,
+                'product_options_summary' => $item->product_options_summary,
+                'product_commission_rate' => !empty($productCommissionRate) ? $productCommissionRate : 0,
+                'extra_options' => $item->extra_options,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+        }
+
+        if (!empty($checkoutItems)) {
+            $this->builderCheckoutItems->insertBatch($checkoutItems);
+        }
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus()) {
+            return $this->getCheckout($checkoutId);
+        }
+        return null;
+    }
     //get raw cart from database
     public function fetchRawCartData()
     {
@@ -202,13 +311,13 @@ class CartModel extends BaseModel
     public function getCart(bool $includeTaxes = false, bool $includeTransactionFee = false)
     {
         $cart = $this->fetchRawCartData();
-        if (empty($cart) || empty($cart->items)) {
+        if (empty($cart) || empty($cart->items)) {            
             if (!empty($cart)) {
-                $this->calculateCartTotal($cart, $includeTaxes, $includeTransactionFee);
+                $this->calculateCartTotalModified($cart);
             }
             return $cart;
-        }
-
+        }        
+        
         $cart->num_items = 0;
         foreach ($cart->items as $key => $cartItem) {
             $product = getActiveProduct($cartItem->product_id);
@@ -219,7 +328,7 @@ class CartModel extends BaseModel
             }
 
             $updatedItem = $this->syncCartItem($cart, $cartItem, $product, $includeTaxes);
-
+            // print_r($updatedItem);
             if ($updatedItem === null) {
                 unset($cart->items[$key]);
             } else {
@@ -231,7 +340,7 @@ class CartModel extends BaseModel
 
         $cart->items = array_values($cart->items);
 
-        $cart = $this->calculateCartTotal($cart, $includeTaxes, $includeTransactionFee);
+        $cart = $this->calculateCartTotalModified($cart, $includeTaxes, $includeTransactionFee);
 
         $cart->is_valid = $this->isCartValid($cart);
 
@@ -636,7 +745,24 @@ class CartModel extends BaseModel
     {
         return $this->builderCartItems->where('id', clrNum($id))->get()->getRow();
     }
+    public function calculateCartTotalModified($cart)
+    {
+        $cartTotal = new \stdClass();
+        $cartTotal->subtotal = 0;
+        $cartTotal->total = 0;
 
+        if (!empty($cart->items)) {
+            foreach ($cart->items as $item) {
+                $cartTotal->subtotal += $item->total_price;
+            }
+        }
+
+        $cartTotal->total = $cartTotal->subtotal;
+
+        $cart->totals = $cartTotal;
+
+        return $cart;
+    }
     //calculate cart total
     public function calculateCartTotal($cart, $includeTaxes = false, $includeTransactionFee = false)
     {

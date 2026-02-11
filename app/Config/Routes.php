@@ -215,7 +215,7 @@ $routes->post('cart/update-quantity', 'CartController::updateCartItemQuantity');
 $routes->post('cart/payment-method-post', 'CartController::paymentMethodPost');
 $routes->post('cart/coupon-code-post', 'CartController::couponCodePost');
 $routes->post('cart/getOngkirCost', 'CartController::getOngkirCost');
-$routes->post('cart/payment', 'CartController::paymentCheckout');
+$routes->post('cart/saveCheckout', 'CartController::saveCheckout');
 $routes->post('cart/changeShippingAddress', 'CartController::changeShippingAddress');
 //checkout
 $routes->post('checkout/complete-bank-transfer-order', 'CheckoutController::placeBankTransferOrder');

@@ -70,8 +70,31 @@
 
         <!-- SUMMARY -->
         <div style="padding:15px;background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;margin-top:10px;">
-            
-            <!-- SUBTOTAL -->
+            <div style="margin-top:12px;margin-bottom:12px;">
+                <label style="font-weight:600;font-size:14px;display:block;margin-bottom:6px;">
+                    Payment Method
+                </label>
+
+                <select 
+                    id="paymentMethod"
+                    style="
+                        width:100%;
+                        padding:12px;
+                        border-radius:6px;
+                        border:1px solid #dcdcdc;
+                        font-size:14px;
+                        outline:none;
+                        background:#fff;
+                        cursor:pointer;
+                    "
+                >
+                    <option value="">-- Choose Payment --</option>
+                    <?php foreach ($paymentMethods as $method): ?>
+                        <option value="<?= $method->code ?>"><?= $method->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;">
                 <span><?= trans("subtotal"); ?></span>
                 <strong><?= priceDecimal($cart->totals->subtotal, $cart->currency_code); ?></strong>
@@ -84,7 +107,7 @@
             </div>
             <?php endif; ?>
 
-            <?php if (!empty($cart->totals->shipping_cost)): ?>
+            
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;margin:8px 0;background:#e8f4f8;border-radius:4px;">
                 <span style="color:#00a99d;">
                     <i class="fas fa-truck"></i> <?= trans("shipping"); ?>
@@ -93,21 +116,20 @@
                     Rp. 0
                 </strong>
             </div>
-            <?php endif; ?>
 
             <!-- TOTAL -->
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:2px solid #333;padding-top:15px;">
                 <span style="font-size:16px;font-weight:700;">
                     <?= trans("total"); ?>
                 </span>
-                <strong style="font-size:18px;color:#00a99d;">
+                <strong id="finalAmount" style="font-size:18px;color:#00a99d;">
                     <?= priceDecimal($cart->totals->total, $cart->currency_code); ?>
                 </strong>
             </div>
             <div style="margin-top:18px;">
                 <button
                     type="button"
-                    onclick="payNow()"
+                    onclick="checkoutNow()"
                     style="
                         width:100%;
                         background:#00a99d;
@@ -125,7 +147,7 @@
                     onmouseout="this.style.background='#00a99d'"
                 >
                     <i class="fas fa-credit-card" style="margin-right:6px;"></i>
-                    Pay / Bayar
+                    Checkout Now
                 </button>
             </div>
         </div>
@@ -135,6 +157,12 @@
 <script>
     var dataSummary = <?= json_encode($groupedSellers) ?>;
     var selectedKurir = [];
-    var selectedDestination = <?= $selectedDestination ?>;
+    
+    var selectedDestination = 0;
+    
+    
+    
     var totalShip = 0;
+    var subTotal = Number("<?= $cart->totals->subtotal?>");
+    var finalTot = 0;
 </script>

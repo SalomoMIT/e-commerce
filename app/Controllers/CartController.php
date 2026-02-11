@@ -361,9 +361,12 @@ class CartController extends BaseController
         if (!empty(helperGetSession('mds_array_cart_seller_ids'))) {
             $data['cartSellerIds'] = helperGetSession('mds_array_cart_seller_ids');
         }
-        // print_r($data['shippingAddresses']);die();
-        $data['selectedDestination']=$selectedDistrictId==''?$data['shippingAddresses'][0]->district_id:$selectedDistrictId;
-        
+        // echo json_encode($data['shippingAddresses']);die();
+        $filtered = array_filter($data['shippingAddresses'], fn($v) => $v->isdefault == "1");
+        $default = $filtered ? reset($filtered) : null;
+        $data['selectedDestination']=$selectedDistrictId!=''?$selectedDistrictId:$default->district_id;
+
+        $data['paymentMethods']= $this->cartModel->getActivePaymentMethods();
         $data['cart'] = $cart;
         $data['groupedSellers'] = $this->groupCartBySeller($cart);
         $data['states'] = json_decode('[{"id":1,"name":"NUSA TENGGARA BARAT (NTB)"},{"id":2,"name":"MALUKU"},{"id":3,"name":"KALIMANTAN SELATAN"},{"id":4,"name":"KALIMANTAN TENGAH"},{"id":5,"name":"JAWA BARAT"},{"id":6,"name":"BENGKULU"},{"id":7,"name":"KALIMANTAN TIMUR"},{"id":8,"name":"KEPULAUAN RIAU"},{"id":9,"name":"NANGGROE ACEH DARUSSALAM (NAD)"},{"id":10,"name":"DKI JAKARTA"},{"id":11,"name":"BANTEN"},{"id":12,"name":"JAWA TENGAH"},{"id":13,"name":"JAMBI"},{"id":14,"name":"PAPUA"},{"id":15,"name":"BALI"},{"id":16,"name":"SUMATERA UTARA"},{"id":17,"name":"GORONTALO"},{"id":18,"name":"JAWA TIMUR"},{"id":19,"name":"DI YOGYAKARTA"},{"id":20,"name":"SULAWESI TENGGARA"},{"id":21,"name":"NUSA TENGGARA TIMUR (NTT)"},{"id":22,"name":"SULAWESI UTARA"},{"id":23,"name":"SUMATERA BARAT"},{"id":24,"name":"BANGKA BELITUNG"},{"id":25,"name":"RIAU"},{"id":26,"name":"SUMATERA SELATAN"},{"id":27,"name":"SULAWESI TENGAH"},{"id":28,"name":"KALIMANTAN BARAT"},{"id":29,"name":"PAPUA BARAT"},{"id":30,"name":"LAMPUNG"},{"id":31,"name":"KALIMANTAN UTARA"},{"id":32,"name":"MALUKU UTARA"},{"id":33,"name":"SULAWESI SELATAN"},{"id":34,"name":"SULAWESI BARAT"}]');
@@ -659,11 +662,13 @@ class CartController extends BaseController
 
         return redirect()->to(generateUrl('cart', 'payment'));
     }
-    public function paymentCheckout(){
+    public function saveCheckout(){
         // print_r(inputPost('selectedKurir'));
-        $totalCost = array_sum(array_column($results, 'cost'));
+        // $totalCost = array_sum(array_column($results, 'cost'));
         // print_r(inputPost('selectedDestination'));
-        $data['cart'] = $this->cartModel->getCart(true, true);
+        $cart = $this->cartModel->getCart(true, true);
+        
+        $this->cartModel->saveCheckoutFromCart($cart);
         // print_r($data['cart']);
     }
     /**

@@ -1757,42 +1757,6 @@ $(document).on("click", ".btn-modal-location-product", function () {
 function changeShippingAddress(districtId) {
     console.log(districtId);
     window.location.href = generateUrl('cart/shipping') + '?district_id=' + districtId;
-    // $.ajax({
-    //     type: 'POST',
-    //     url: generateUrl('cart/shipping'),
-    //     data: {"district_id":districtId},
-    //     success: function (response) {
-    //         if (response.result == 1) {
-    //             district_id
-    //         }
-    //     },
-    //     error:()=>{
-    //         $('#cart_shipping_methods_container').show();
-    //     }
-    // });
-
-    // $('#cart_shipping_methods_container').hide();
-    // $('.cart-shipping-loader').show();
-    // var data = {
-    //     'districtId': districtId,
-    // };
-    // $.ajax({
-    //     type: 'POST',
-    //     url: generateUrl('Cart/getShippingFeeByDistrict'),
-    //     data: data,
-    //     success: function (response) {
-    //         if (response.result == 1) {
-    //             document.getElementById("cart_shipping_methods_container").innerHTML = response.htmlContent;
-    //             setTimeout(function () {
-    //                 $('#cart_shipping_methods_container').show();
-    //                 $('.cart-shipping-loader').hide();
-    //             }, 400);
-    //         }
-    //     },
-    //     error:()=>{
-    //         $('#cart_shipping_methods_container').show();
-    //     }
-    // });
 };
 
 $(document).on("click", "#btnShowCartShippingError", function () {
@@ -2463,22 +2427,27 @@ function getCities(val, idSuffix = '') {
         }
     });
 }
-function payNow() {
+function checkoutNow() {
     const countSelectOngkir = document.querySelectorAll('[id^="select_ongkir_"]').length;
-    if(countSelectOngkir !== selectedKurir.length) {
+    if($("#paymentMethod").val() == ""){
+        alert("Harap pilih metode pembayaran");
+        return;
+    } else if(countSelectOngkir !== selectedKurir.length) {
         alert("Harap pilih ongkir untuk semua seller dan semua item");
         return;
+    } else if(selectedDestination == 0){
+        alert("Harap pilih tujuan pengiriman");
     } else {
         var data={"selectedKurir":selectedKurir,"selectedDestination":selectedDestination}
         $.ajax({
             type: 'POST',
-            url: generateUrl('cart/payment'),
+            url: generateUrl('cart/saveCheckout'),
             data: {
                 csrf_token: $('input[name="csrf_token"]').val(),
                 ...data
             },
             success: function (response) {
-                console.log("Ini result",response)
+                console.log(response)
             },
             error: function () {
                 alert("Gagal submit payment")
@@ -2548,6 +2517,9 @@ function hitungTotalOngkir(courierList) {
         total += cost;
     });
     totalShip = total;
+    finalTot = subTotal + totalShip;
+
+    $("#finalAmount").text("Rp"+new Intl.NumberFormat('id-ID').format(finalTot));
     $("#totalShipping").text("Rp"+new Intl.NumberFormat('id-ID').format(totalShip));
     return total;
 }
@@ -2555,7 +2527,6 @@ function hitungTotalOngkir(courierList) {
 function ongkirOnChange (el) {
     const opt = el.options[el.selectedIndex];
     const obj = JSON.parse(opt.dataset.json);
-    console.log(obj);
     const idx = selectedKurir.findIndex(x => x.id === obj.id);
 
     if (idx !== -1) {
@@ -2612,18 +2583,27 @@ function getOngkir(id,origin, destination, weight, courier) {
     });
 }
 // let dataSummary;
-$(document).ready(function () {
-    // if(dataSummary === undefined) return;
-    var hitBE = groupSellerOrigin(dataSummary);
-    hitBE.forEach(v=> {
-        getOngkir(v.item_id,
-            v.origin,
-            selectedDestination,
-            v.berat,
-            v.couriers
-        );
-    });
-    console.log(hitBE);
+let selectEl ;
+
+$(document).ready(function () {    
+    setTimeout(() => {
+        selectEl = document.querySelector('input[name="shipping_address_id"]:checked');
+        if (selectEl) {
+            selectedDestination = selectEl.value;
+        }
+        var hitBE = groupSellerOrigin(dataSummary);
+        if(selectedDestination == 0) 
+        {alert("Silahkan pilih alamat pengiriman");return;}
+        hitBE.forEach(v=> {
+            getOngkir(v.item_id,
+                v.origin,
+                selectedDestination,
+                v.berat,
+                v.couriers
+            );
+        });
+        console.log(hitBE);
+    }, 1400);    
 });
 function getItemBeratGram(item) {
   if (!item.shipping_dimensions) return 0;
@@ -2692,7 +2672,6 @@ function groupSellerOrigin(data) {
 
   return result;
 }
-
 
 function getCitiesGuest(val) {
     $.ajax({
@@ -2769,7 +2748,8 @@ function getDistrictGuest(val) {
             alert("Gagal memuat data distrik")
         }
     });
-}function setAddressPickGuest(val) {
+}
+function setAddressPickGuest(val) {
     // Gunakan jQuery selector agar lebih mudah memanipulasi input hidden
     const $selectDistrict = $("#select_district_guest");
 
