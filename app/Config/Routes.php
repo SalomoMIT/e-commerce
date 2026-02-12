@@ -233,6 +233,7 @@ $routes->get('checkout/complete-iyzico-payment', 'CheckoutController::completeIy
 $routes->get('checkout/complete-yoomoney-payment', 'CheckoutController::completeYoomoneyPayment');
 $routes->get('checkout/complete-paytabs-payment', 'CheckoutController::completePayTabsPayment');
 $routes->get('checkout/complete-mercado-pago-payment', 'CheckoutController::completeMercadoPagoPayment');
+$routes->get('checkout/checkout_success', 'CheckoutController::checkout_success');
 
 //payment webhooks
 $routes->post('payment/webhook/stripe', 'CheckoutController::handleStripeWebhook');

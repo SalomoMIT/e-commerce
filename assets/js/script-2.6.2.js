@@ -2438,7 +2438,7 @@ function checkoutNow() {
     } else if(selectedDestination == 0){
         alert("Harap pilih tujuan pengiriman");
     } else {
-        var data={"selectedKurir":selectedKurir,"selectedDestination":selectedDestination}
+        var data={"paymentMethod":$("#paymentMethod").val(),"selectedKurir":selectedKurir,"selectedDestination":selectedDestination}
         $.ajax({
             type: 'POST',
             url: generateUrl('cart/saveCheckout'),
@@ -2448,6 +2448,9 @@ function checkoutNow() {
             },
             success: function (response) {
                 console.log(response)
+                if(response.result == 1){
+                    window.location.href = generateUrl('checkout/checkout_success/');
+                }
             },
             error: function () {
                 alert("Gagal submit payment")

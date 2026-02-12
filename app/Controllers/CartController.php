@@ -382,6 +382,7 @@ class CartController extends BaseController
         }
         echo view('partials/_footer');
     }
+    
     function groupCartBySeller(object $cart): array
     {
         $result = [];
@@ -662,15 +663,28 @@ class CartController extends BaseController
 
         return redirect()->to(generateUrl('cart', 'payment'));
     }
+    function hitungTotalOngkir(string $json): int
+    {
+        $data = json_decode($json, true);
+        if (!is_array($data)) return 0;
+
+        $total = 0;
+        foreach ($data as $item) {
+            $total += (int)$item['cost'];
+        }
+        return $total;
+    }
     public function saveCheckout(){
-        // print_r(inputPost('selectedKurir'));
-        // $totalCost = array_sum(array_column($results, 'cost'));
-        // print_r(inputPost('selectedDestination'));
         $cart = $this->cartModel->getCart(true, true);
         $cart->selectedKurir=inputPost('selectedKurir');
-        // $this->cartModel->saveCheckoutFromCart($cart);
-        // print_r($data['cart']);
+        $cart->shipping_cost =$this->hitungTotalOngkir(json_encode($cart->selectedKurir));
+        $cart->shipping_cost_data = json_encode($cart->selectedKurir);
+        $cart->totals->shipping_cost = $cart->shipping_cost;
+        $cart->payment_method=inputPost('paymentMethod');
+        $res=$this->cartModel->saveCheckoutFromCart($cart);
+        return $res==null?jsonResponse(['result'=>0]):jsonResponse(['result'=>1,'checkout_token'=>$res->checkout_token]);
     }
+    
     /**
      * Prepare and display the payment page.
      */

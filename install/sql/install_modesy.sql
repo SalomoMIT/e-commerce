@@ -2641,6 +2641,8 @@ INSERT INTO `language_translations` (`id`, `lang_id`, `label`, `translation`) VA
 (1583, 1, 'you_will_earn', 'You Will Earn'),
 (1584, 1, 'zip_code', 'Zip Code'),
 (1585, 1, 'zone_name', 'Zone Name');
+(1586, 1, 'checkout_success', 'Checkout Success');
+
 
 -- --------------------------------------------------------
 

@@ -123,7 +123,7 @@
                     <?= trans("total"); ?>
                 </span>
                 <strong id="finalAmount" style="font-size:18px;color:#00a99d;">
-                    <?= priceDecimal($cart->totals->total, $cart->currency_code); ?>
+                    <?= priceDecimal($cart->totals->subtotal, $cart->currency_code); ?>
                 </strong>
             </div>
             <div style="margin-top:18px;">

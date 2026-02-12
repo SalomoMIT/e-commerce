@@ -121,6 +121,15 @@ class CheckoutController extends BaseController
      * @method GET
      * @return \CodeIgniter\HTTP\RedirectResponse|void
      */
+
+    public function checkout_success()
+    {
+        $data = setPageMeta(trans("checkout_success"));
+        echo view('partials/_header', $data);
+        
+        
+        echo view('partials/_footer');
+    }
     public function completeStripePayment()
     {
         $sessionId = $this->request->getGet('session_id');

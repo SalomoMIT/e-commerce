@@ -5,6 +5,7 @@ class CartModel extends BaseModel
     protected $builderCarts;
     protected $builderCartItems;
 
+    const STATUS_PENDING = 'pending';
     public function __construct()
     {
         parent::__construct();
@@ -12,6 +13,7 @@ class CartModel extends BaseModel
         $this->builderCarts = $this->db->table('carts');
         $this->builderCartItems = $this->db->table('cart_items');
         $this->builderCheckouts = $this->db->table('checkouts');
+        $this->builderCheckoutItems = $this->db->table('checkout_items');
         $this->builderPaymentMethods = $this->db->table('payment_method');
     }
 
@@ -87,16 +89,14 @@ class CartModel extends BaseModel
     }
     public function saveCheckoutFromCart(object $cart): ?object
     {
-        echo json_encode($cart);
         if (empty($cart) || empty($cart->is_valid) || empty($cart->payment_method)) {
             return null;
         }
-
+        
         $this->db->transStart();
 
         $paymentMethod = $cart->payment_method;
         $checkoutToken = generateUuidV4();
-        die();
         // Convert numbers to string before assigning safely
         try {
             foreach ($cart->totals as $key => $value) {
@@ -106,7 +106,7 @@ class CartModel extends BaseModel
             }
         } catch (\Throwable $e) {
         }
-
+        
         // Prepare checkout data from the validated cart object.
         $checkoutData = [
             'cart_id' => $cart->id,
@@ -116,8 +116,8 @@ class CartModel extends BaseModel
             'checkout_type' => 'product',
             'payment_method' => $paymentMethod,
             'subtotal' => numToDecimal($cart->totals->subtotal),
-            'shipping_cost' => numToDecimal($cart->totals->shipping_cost ?? 0),
-            'grand_total' => numToDecimal($cart->totals->total),
+            'shipping_cost' => numToDecimal($cart->shipping_cost ?? 0),
+            'grand_total' => numToDecimal($cart->shipping_cost + $cart->totals->subtotal ),
             'grand_total_base' => numToDecimal(convertToDefaultCurrency($cart->totals->total, $cart->currency_code)),
             'currency_code' => $cart->currency_code,
             'currency_code_base' => $cart->currency_code_base,
@@ -132,12 +132,13 @@ class CartModel extends BaseModel
             'expires_at' => date('Y-m-d H:i:s', time() + 3600),
             'created_at' => date('Y-m-d H:i:s'),
         ];
-
-        if ($paymentMethod === 'bank_transfer') {
-            $checkoutData['transaction_number'] = $this->generateTransactionNumber();
-        } elseif ($paymentMethod === 'wallet_balance') {
-            $checkoutData['transaction_number'] = $this->generateTransactionNumber('WLT');
-        }
+        
+        // die();
+        // if ($paymentMethod === 'bank_transfer') {
+        //     $checkoutData['transaction_number'] = $this->generateTransactionNumber();
+        // } elseif ($paymentMethod === 'wallet_balance') {
+        //     $checkoutData['transaction_number'] = $this->generateTransactionNumber('WLT');
+        // }
 
         $this->builderCheckouts->insert($checkoutData);
         $checkoutId = $this->db->insertID();
@@ -146,7 +147,7 @@ class CartModel extends BaseModel
             $this->db->transRollback();
             return null;
         }
-
+        
         // Prepare checkout items
         $orderModel = new OrderModel();
         $checkoutItems = [];
@@ -188,6 +189,10 @@ class CartModel extends BaseModel
             return $this->getCheckout($checkoutId);
         }
         return null;
+    }
+    public function getCheckout(int $id): ?object
+    {
+        return $this->builderCheckouts->where('id', $id)->get()->getRow();
     }
     //get raw cart from database
     public function fetchRawCartData()
@@ -313,7 +318,7 @@ class CartModel extends BaseModel
         $cart = $this->fetchRawCartData();
         if (empty($cart) || empty($cart->items)) {            
             if (!empty($cart)) {
-                $this->calculateCartTotalModified($cart);
+                $this->calculateCartTotal($cart);
             }
             return $cart;
         }        
@@ -340,10 +345,9 @@ class CartModel extends BaseModel
 
         $cart->items = array_values($cart->items);
 
-        $cart = $this->calculateCartTotalModified($cart, $includeTaxes, $includeTransactionFee);
+        $cart = $this->calculateCartTotal($cart, $includeTaxes, $includeTransactionFee);
 
         $cart->is_valid = $this->isCartValid($cart);
-
         return $cart;
     }
 

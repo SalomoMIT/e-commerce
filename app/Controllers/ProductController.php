@@ -109,7 +109,8 @@ class ProductController extends BaseAdminController
         $data['audio'] = $this->fileModel->getProductAudio($data['product']->id);
         $data['digitalFile'] = $this->fileModel->getProductDigitalFile($data['product']->id);
         $data['userSession'] = getUserSession();
-
+        // echo json_encode($data['productDetails']);
+        // die();
         echo view('admin/includes/_header', $data);
         echo view('admin/product/product_details', $data);
         echo view('admin/includes/_footer');

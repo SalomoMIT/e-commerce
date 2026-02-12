@@ -107,7 +107,7 @@ class CheckoutModel extends BaseModel
             'coupon_code' => $cart->coupon_code,
             'has_physical_product' => $cart->has_physical_product,
             'has_digital_product' => $cart->has_digital_product,
-            'status' => self::STATUS_PENDING,
+            'status' => 'pending',
             'expires_at' => date('Y-m-d H:i:s', time() + 3600),
             'created_at' => date('Y-m-d H:i:s'),
         ];
