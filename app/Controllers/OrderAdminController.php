@@ -57,9 +57,9 @@ class OrderAdminController extends BaseAdminController
         $data['orderProducts'] = $this->orderAdminModel->getOrderItems($id);
         $data['transaction'] = $this->orderAdminModel->getTransactionByOrderId($id);
 
-        echo view('admin/includes/_header', $data);
-        echo view('admin/order/order_details', $data);
-        echo view('admin/includes/_footer');
+        // echo view('admin/includes/_header', $data);
+        // echo view('admin/order/order_details', $data);
+        // echo view('admin/includes/_footer');
     }
 
     /**

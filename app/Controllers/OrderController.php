@@ -50,9 +50,14 @@ class OrderController extends BaseController
      */
     public function order($orderNumber)
     {
+        $data['order'] ;
+        if(inputGet('ct')!=''){
+            $data['order'] = $this->orderModel->getOrderByCheckoutToken($orderNumber);
+        } else {
+            $data['order'] = $this->orderModel->getOrderByOrderNumber($orderNumber);
+        }
         $data = setPageMeta(trans("order"));
 
-        $data['order'] = $this->orderModel->getOrderByOrderNumber($orderNumber);
         if (empty($data['order'])) {
             return redirect()->to(langBaseUrl());
         }

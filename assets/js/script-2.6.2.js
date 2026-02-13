@@ -2447,9 +2447,8 @@ function checkoutNow() {
                 ...data
             },
             success: function (response) {
-                console.log(response)
                 if(response.result == 1){
-                    window.location.href = generateUrl('checkout/checkout_success/');
+                    window.location.href = generateUrl('order?ct='+response.checkout_token);
                 }
             },
             error: function () {
@@ -2542,11 +2541,11 @@ function ongkirOnChange (el) {
     console.log("selectedKurir",JSON.stringify(selectedKurir))
     hitungTotalOngkir(selectedKurir);
 }
-function getOngkir(id,origin, destination, weight, courier) {
+function getOngkir(id, origin, destination, weight, courier) {
     // Ambil token CSRF dari input hidden atau meta tag
     var csrfName = 'csrf_test_name'; // Sesuaikan dengan config/App.php CI4 Anda
     var csrfHash = $('input[name="csrf_test_name"]').val(); 
-    console.log(id)
+    console.log("getOngkir",id)
     $.ajax({
         type: 'POST',
         url: generateUrl('cart/getOngkirCost'), // Gunakan route yang mengarah ke getCourierFee

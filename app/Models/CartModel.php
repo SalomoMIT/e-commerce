@@ -333,7 +333,6 @@ class CartModel extends BaseModel
             }
 
             $updatedItem = $this->syncCartItem($cart, $cartItem, $product, $includeTaxes);
-            // print_r($updatedItem);
             if ($updatedItem === null) {
                 unset($cart->items[$key]);
             } else {

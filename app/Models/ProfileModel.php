@@ -267,8 +267,7 @@ class ProfileModel extends BaseModel
         unset($c); // best practice setelah foreach reference
 
         $row = $this->updateKurir(array("couriers"=>json_encode($couriers)),user()->id);
-        print_r($row);
-        
+    
     }
     //edit shipping address
     public function editShippingAddress()

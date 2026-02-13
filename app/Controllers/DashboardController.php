@@ -254,7 +254,7 @@ class DashboardController extends BaseController
         $title = $product->is_draft == 1 ? trans('add_product') : trans('edit_product');
         $data = $this->setMetaData($title);
         $data['product'] = $product;
-        echo json_encode($data['product']); //--- IGNORE ---
+        
         $fieldModel = new FieldModel();
         $data["customFields"] = $fieldModel->getCustomFieldsByCategory($product->category_id);
 

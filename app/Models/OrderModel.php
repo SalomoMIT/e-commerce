@@ -496,7 +496,10 @@ class OrderModel extends BaseModel
     {
         return $this->builder->where('order_number', clrNum($orderNumber))->get()->getRow();
     }
-
+    public function getOrderByCheckoutToken($orderNumber)
+    {
+        return $this->builder->where('order_number', clrNum($orderNumber))->get()->getRow();
+    }
     //get order by checkout token
     public function getOrderByCheckoutToken($token)
     {
