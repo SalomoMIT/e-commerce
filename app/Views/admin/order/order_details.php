@@ -346,8 +346,8 @@
                                     <th><?= trans('product'); ?></th>
                                     <th><?= trans('unit_price'); ?></th>
                                     <th><?= trans('quantity'); ?></th>
-                                    <th><?= trans('vat'); ?></th>
-                                    <th><?= trans('shipping_cost'); ?></th>
+                                    <!-- <th><?= trans('vat'); ?></th> -->
+                                    <!-- <th><?= trans('shipping_cost'); ?></th> -->
                                     <th><?= trans('total'); ?></th>
                                     <th><?= trans('status'); ?></th>
                                     <th><?= trans('updated'); ?></th>
@@ -397,16 +397,16 @@
                                         </td>
                                         <td><?= priceFormatted($item->product_unit_price, $item->product_currency); ?></td>
                                         <td><?= $item->product_quantity; ?></td>
-                                        <td>
+                                        <!-- <td>
                                             <?php if ($item->product_vat):
                                                 echo priceFormatted($item->product_vat, $item->product_currency); ?>&nbsp;(<?= $item->product_vat_rate; ?>%)
                                             <?php endif; ?>
-                                        </td>
-                                        <td>
+                                        </td> -->
+                                        <!-- <td>
                                             <?php if ($item->product_type == 'physical'):
                                                 echo priceFormatted($item->seller_shipping_cost, $item->product_currency);
                                             endif; ?>
-                                        </td>
+                                        </td> -->
                                         <td><?= priceFormatted($item->product_total_price, $item->product_currency); ?></td>
                                         <td>
                                             <strong><?= trans($item->order_status); ?></strong>

@@ -129,7 +129,7 @@
             <div style="margin-top:18px;">
                 <button
                     type="button"
-                    onclick="checkoutNow()"
+                    onclick="payNow()"
                     style="
                         width:100%;
                         background:#00a99d;
@@ -147,7 +147,7 @@
                     onmouseout="this.style.background='#00a99d'"
                 >
                     <i class="fas fa-credit-card" style="margin-right:6px;"></i>
-                    Checkout Now
+                    Bayar Sekarang
                 </button>
             </div>
         </div>

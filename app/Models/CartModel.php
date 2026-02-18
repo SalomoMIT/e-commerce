@@ -87,108 +87,217 @@ class CartModel extends BaseModel
     {
         return $this->builderPaymentMethods->where('active', 1)->get()->getResult();
     }
+    // public function saveCheckoutFromCart(object $cart): ?object
+    // {
+    //     if (empty($cart) || empty($cart->is_valid) || empty($cart->payment_method)) {
+    //         return null;
+    //     }
+        
+    //     $this->db->transStart();
+
+    //     $paymentMethod = $cart->payment_method;
+    //     $checkoutToken = generateUuidV4();
+    //     // Convert numbers to string before assigning safely
+    //     try {
+    //         foreach ($cart->totals as $key => $value) {
+    //             if (is_numeric($value)) {
+    //                 $cart->totals->$key = (string)$value;
+    //             }
+    //         }
+    //     } catch (\Throwable $e) {
+    //     }
+        
+    //     // Prepare checkout data from the validated cart object.
+    //     $checkoutData = [
+    //         'cart_id' => $cart->id,
+    //         'user_id' => $cart->user_id,
+    //         'session_id' => $cart->session_id,
+    //         'checkout_token' => $checkoutToken,
+    //         'checkout_type' => 'product',
+    //         'payment_method' => $paymentMethod,
+    //         'subtotal' => numToDecimal($cart->totals->subtotal),
+    //         'shipping_cost' => numToDecimal($cart->shipping_cost ?? 0),
+    //         'grand_total' => numToDecimal($cart->shipping_cost + $cart->totals->subtotal ),
+    //         'grand_total_base' => numToDecimal(convertToDefaultCurrency($cart->totals->total, $cart->currency_code)),
+    //         'currency_code' => $cart->currency_code,
+    //         'currency_code_base' => $cart->currency_code_base,
+    //         'exchange_rate' => $cart->exchange_rate ?? 1.0,
+    //         'cart_totals_data' => safeJsonEncode($cart->totals),
+    //         'shipping_data' => sanitizeJsonString($cart->shipping_data),
+    //         'shipping_cost_data' => sanitizeJsonString($cart->shipping_cost_data),
+    //         'coupon_code' => $cart->coupon_code,
+    //         'has_physical_product' => $cart->has_physical_product,
+    //         'has_digital_product' => $cart->has_digital_product,
+    //         'status' => self::STATUS_PENDING,
+    //         'expires_at' => date('Y-m-d H:i:s', time() + 3600),
+    //         'created_at' => date('Y-m-d H:i:s'),
+    //     ];
+        
+    //     // die();
+    //     // if ($paymentMethod === 'bank_transfer') {
+    //     //     $checkoutData['transaction_number'] = $this->generateTransactionNumber();
+    //     // } elseif ($paymentMethod === 'wallet_balance') {
+    //     //     $checkoutData['transaction_number'] = $this->generateTransactionNumber('WLT');
+    //     // }
+
+    //     $this->builderCheckouts->insert($checkoutData);
+    //     $checkoutId = $this->db->insertID();
+
+    //     if (!$checkoutId) {
+    //         $this->db->transRollback();
+    //         return null;
+    //     }
+        
+    //     // Prepare checkout items
+    //     $orderModel = new OrderModel();
+    //     $checkoutItems = [];
+    //     foreach ($cart->items as $item) {
+
+    //         $productCommissionRate = $orderModel->getProductCommissionRate($item->product_id);
+
+    //         $checkoutItems[] = [
+    //             'checkout_id' => $checkoutId,
+    //             'product_id' => $item->product_id,
+    //             'seller_id' => $item->seller_id,
+    //             'product_type' => $item->product_type,
+    //             'listing_type' => $item->listing_type,
+    //             'product_title' => $item->product_title,
+    //             'product_sku' => $item->product_sku,
+    //             'quantity' => $item->quantity,
+    //             'unit_price' => $item->unit_price,
+    //             'total_price' => $item->total_price,
+    //             'product_vat' => $item->product_vat,
+    //             'product_vat_rate' => $item->product_vat_rate,
+    //             'product_image_id' => $item->product_image_id,
+    //             'product_image_data' => $item->product_image_data,
+    //             'quote_request_id' => $item->quote_request_id,
+    //             'product_options_snapshot' => $item->product_options_snapshot,
+    //             'product_options_summary' => $item->product_options_summary,
+    //             'product_commission_rate' => !empty($productCommissionRate) ? $productCommissionRate : 0,
+    //             'extra_options' => $item->extra_options,
+    //             'created_at' => date('Y-m-d H:i:s'),
+    //         ];
+    //     }
+
+    //     if (!empty($checkoutItems)) {
+    //         $this->builderCheckoutItems->insertBatch($checkoutItems);
+    //     }
+
+    //     $this->db->transComplete();
+
+    //     if ($this->db->transStatus()) {
+    //         return $this->getCheckout($checkoutId);
+    //     }
+    //     return null;
+    // }
     public function saveCheckoutFromCart(object $cart): ?object
     {
         if (empty($cart) || empty($cart->is_valid) || empty($cart->payment_method)) {
             return null;
         }
         
+        // Mulai Transaksi Database
         $this->db->transStart();
 
-        $paymentMethod = $cart->payment_method;
-        $checkoutToken = generateUuidV4();
-        // Convert numbers to string before assigning safely
         try {
-            foreach ($cart->totals as $key => $value) {
-                if (is_numeric($value)) {
-                    $cart->totals->$key = (string)$value;
-                }
-            }
-        } catch (\Throwable $e) {
-        }
-        
-        // Prepare checkout data from the validated cart object.
-        $checkoutData = [
-            'cart_id' => $cart->id,
-            'user_id' => $cart->user_id,
-            'session_id' => $cart->session_id,
-            'checkout_token' => $checkoutToken,
-            'checkout_type' => 'product',
-            'payment_method' => $paymentMethod,
-            'subtotal' => numToDecimal($cart->totals->subtotal),
-            'shipping_cost' => numToDecimal($cart->shipping_cost ?? 0),
-            'grand_total' => numToDecimal($cart->shipping_cost + $cart->totals->subtotal ),
-            'grand_total_base' => numToDecimal(convertToDefaultCurrency($cart->totals->total, $cart->currency_code)),
-            'currency_code' => $cart->currency_code,
-            'currency_code_base' => $cart->currency_code_base,
-            'exchange_rate' => $cart->exchange_rate ?? 1.0,
-            'cart_totals_data' => safeJsonEncode($cart->totals),
-            'shipping_data' => sanitizeJsonString($cart->shipping_data),
-            'shipping_cost_data' => sanitizeJsonString($cart->shipping_cost_data),
-            'coupon_code' => $cart->coupon_code,
-            'has_physical_product' => $cart->has_physical_product,
-            'has_digital_product' => $cart->has_digital_product,
-            'status' => self::STATUS_PENDING,
-            'expires_at' => date('Y-m-d H:i:s', time() + 3600),
-            'created_at' => date('Y-m-d H:i:s'),
-        ];
-        
-        // die();
-        // if ($paymentMethod === 'bank_transfer') {
-        //     $checkoutData['transaction_number'] = $this->generateTransactionNumber();
-        // } elseif ($paymentMethod === 'wallet_balance') {
-        //     $checkoutData['transaction_number'] = $this->generateTransactionNumber('WLT');
-        // }
+            $paymentMethod = $cart->payment_method;
+            $checkoutToken = generateUuidV4();
 
-        $this->builderCheckouts->insert($checkoutData);
-        $checkoutId = $this->db->insertID();
-
-        if (!$checkoutId) {
-            $this->db->transRollback();
-            return null;
-        }
-        
-        // Prepare checkout items
-        $orderModel = new OrderModel();
-        $checkoutItems = [];
-        foreach ($cart->items as $item) {
-
-            $productCommissionRate = $orderModel->getProductCommissionRate($item->product_id);
-
-            $checkoutItems[] = [
-                'checkout_id' => $checkoutId,
-                'product_id' => $item->product_id,
-                'seller_id' => $item->seller_id,
-                'product_type' => $item->product_type,
-                'listing_type' => $item->listing_type,
-                'product_title' => $item->product_title,
-                'product_sku' => $item->product_sku,
-                'quantity' => $item->quantity,
-                'unit_price' => $item->unit_price,
-                'total_price' => $item->total_price,
-                'product_vat' => $item->product_vat,
-                'product_vat_rate' => $item->product_vat_rate,
-                'product_image_id' => $item->product_image_id,
-                'product_image_data' => $item->product_image_data,
-                'quote_request_id' => $item->quote_request_id,
-                'product_options_snapshot' => $item->product_options_snapshot,
-                'product_options_summary' => $item->product_options_summary,
-                'product_commission_rate' => !empty($productCommissionRate) ? $productCommissionRate : 0,
-                'extra_options' => $item->extra_options,
+            // 1. PREPARE & INSERT CHECKOUT DATA (Sebagai Log Checkout)
+            $checkoutData = [
+                'cart_id' => $cart->id,
+                'user_id' => $cart->user_id,
+                'session_id' => $cart->session_id,
+                'checkout_token' => $checkoutToken,
+                'checkout_type' => 'product',
+                'payment_method' => $paymentMethod,
+                'subtotal' => numToDecimal($cart->totals->subtotal),
+                'shipping_cost' => numToDecimal($cart->shipping_cost ?? 0),
+                'grand_total' => numToDecimal($cart->shipping_cost + $cart->totals->subtotal ),
+                'grand_total_base' => numToDecimal(convertToDefaultCurrency($cart->totals->total, $cart->currency_code)),
+                'currency_code' => $cart->currency_code,
+                'currency_code_base' => $cart->currency_code_base,
+                'exchange_rate' => $cart->exchange_rate ?? 1.0,
+                'cart_totals_data' => safeJsonEncode($cart->totals),
+                'shipping_data' => sanitizeJsonString($cart->shipping_data),
+                'shipping_cost_data' => sanitizeJsonString($cart->shipping_cost_data),
+                'coupon_code' => $cart->coupon_code,
+                'has_physical_product' => $cart->has_physical_product,
+                'has_digital_product' => $cart->has_digital_product,
+                'status' => self::STATUS_PENDING,
+                'expires_at' => date('Y-m-d H:i:s', time() + 3600),
                 'created_at' => date('Y-m-d H:i:s'),
             ];
-        }
+            $this->builderCheckouts->insert($checkoutData);
+            $checkoutId = $this->db->insertID();
+            
+            // 2. INSERT KE TABLE "orders" (Data Permanen Pesanan)
+            $orderData = [
+                'order_number'      => uniqid(),
+                'buyer_id'          => $cart->user_id ?: 0,
+                'buyer_type'        => empty($checkout->user_id) ? 'guest' : 'registered',
+                'price_subtotal'    => numToDecimal($cart->totals->subtotal),
+                'price_shipping'    => numToDecimal($cart->shipping_cost ?? 0),
+                'price_total'       => numToDecimal($cart->shipping_cost + $cart->totals->subtotal),
+                'price_currency'    => $cart->currency_code,
+                'payment_method'    => $paymentMethod,
+                'payment_status'    => 'pending_payment',
+                'status'            => 0, // Misal 0 = Pending
+                'checkout_token'    => $checkoutToken,
+                'shipping'          => sanitizeJsonString($cart->shipping_data), // Simpan alamat snapshot
+                'created_at'        => date('Y-m-d H:i:s'),
+            ];
+            $this->db->table('orders')->insert($orderData);
+            $orderId = $this->db->insertID();
+            echo $orderId;
+            // 3. PREPARE & INSERT KE TABLE "order_items" (Loop dari Cart Items)
+            $orderModel = new OrderModel();
+            $orderItems = [];
+            
+            foreach ($cart->items as $item) {
+                $productCommissionRate = $orderModel->getProductCommissionRate($item->product_id);
 
-        if (!empty($checkoutItems)) {
-            $this->builderCheckoutItems->insertBatch($checkoutItems);
-        }
+                $orderItems[] = [
+                    'order_id'          => $orderId, // Link ke table orders
+                    'seller_id'         => $item->seller_id,
+                    'buyer_id'          => $cart->user_id,
+                    'product_id'        => $item->product_id,
+                    'product_title'     => $item->product_title, // Snapshot judul
+                    'product_unit_price'=> $item->unit_price,    // Snapshot harga saat ini
+                    'product_quantity'  => $item->quantity,
+                    'product_total_price'=> $item->total_price,
+                    'shipping_method'   => $cart->shipping_method ?? '',
+                    'order_status'      => 'pending_payment',
+                    'created_at'        => date('Y-m-d H:i:s'),
+                ];
+            }
 
-        $this->db->transComplete();
+            if (!empty($orderItems)) {
+                $this->db->table('order_items')->insertBatch($orderItems);
+            }
 
-        if ($this->db->transStatus()) {
-            return $this->getCheckout($checkoutId);
+            // 4. HAPUS KERANJANG (Mencegah Double Checkout)
+            $this->db->table('cart_items')->where('cart_id', $cart->id)->delete();
+            // Jika anda pakai table cart (header), hapus juga:
+            // $this->db->table('carts')->where('id', $cart->id)->delete();
+
+            // Selesaikan Transaksi
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === FALSE) {
+                // Jika ada satu step gagal, CodeIgniter otomatis melakukan Rollback
+                return null;
+            }
+
+            // Return object order untuk redirect ke halaman pembayaran
+            return $this->db->table('orders')->where('id', $orderId)->get()->getRow();
+
+        } catch (\Throwable $e) {
+            // Rollback manual jika terjadi exception koding
+            $this->db->transRollback();
+            log_message('error', 'Checkout Error: ' . $e->getMessage());
+            return null;
         }
-        return null;
     }
     public function getCheckout(int $id): ?object
     {

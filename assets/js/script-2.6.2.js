@@ -2427,7 +2427,7 @@ function getCities(val, idSuffix = '') {
         }
     });
 }
-function checkoutNow() {
+function payNow() {
     const countSelectOngkir = document.querySelectorAll('[id^="select_ongkir_"]').length;
     if($("#paymentMethod").val() == ""){
         alert("Harap pilih metode pembayaran");

@@ -601,7 +601,7 @@ class CartController extends BaseController
         $cart->totals->shipping_cost = $cart->shipping_cost;
         $cart->payment_method=inputPost('paymentMethod');
         $res=$this->cartModel->saveCheckoutFromCart($cart);
-        return $res==null?jsonResponse(['result'=>0]):jsonResponse(['result'=>1,'checkout_token'=>$res->checkout_token]);
+        return $res==null?jsonResponse(['result'=>0,'data'=>$res]):jsonResponse(['result'=>1,'checkout_token'=>$res->checkout_token]);
     }
     
     /**

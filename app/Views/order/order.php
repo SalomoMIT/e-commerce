@@ -379,7 +379,7 @@
                                                         </td>
                                                     </tr>
                                                     <?php if ($item->product_type == 'physical'): ?>
-                                                    <tr class="tr-shipping">
+                                                    <!-- <tr class="tr-shipping">
                                                         <td colspan="4">
                                                             <div class="order-shipping-tracking-number">
                                                                 <div class="d-flex justify-content-between">
@@ -403,7 +403,7 @@
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                    </tr>
+                                                    </tr> -->
                                                 <?php endif;
                                                     $i++;
                                                 endforeach;
