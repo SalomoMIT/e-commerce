@@ -274,9 +274,13 @@ class ProfileModel extends BaseModel
     {
         $id = inputPost('id');
         $row = $this->getShippingAddressById($id, user()->id);
+        $isdefaultexist= $this->getShippingAddressByUserId(user()->id) > 0;
+        
         if (!empty($row) && user()->id == $row->user_id) {
             $data = $this->shippingAddressInputValues();
-
+            if(!$isdefaultexist){
+                $data['isdefault'] =1;
+            }
             return $this->builderShippingAddresses->where('id', $row->id)->update($data);
         }
         return false;
@@ -290,7 +294,10 @@ class ProfileModel extends BaseModel
     {
         return $this->builderShippingAddresses->where('id', clrNum($addressId))->where('user_id', clrNum($userId))->get()->getRow();
     }
-
+    public function getShippingAddressByUserId($userId)
+    {
+        return $this->builderShippingAddresses->where('isdefault', 1)->where('address_type', 'shipping')->where('user_id', clrNum($userId))->countAllResults();
+    }
     //delete shipping address
     public function deleteShippingAddress()
     {

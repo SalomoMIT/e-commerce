@@ -2481,23 +2481,11 @@ function getDistrict(val, idSuffix = '') {
                 response.data.forEach(item => {
                     $districtSelect.append(new Option(item.name, item.id));
                 });
-                
-                // Render ulang UI Select2 District
                 $districtSelect.trigger('change');
-
-                // --- UPDATE HIDDEN INPUT DISINI ---
-                
-                // Ambil value ID Kota
                 var selectedCityId = $citySelect.val();
-                
-                // Ambil text Nama Kota
                 var selectedCityName = $citySelect.find('option:selected').text();
-
-                // Update input hidden city_id
                 $citySelect.siblings('input[name="city_id"]').val(selectedCityId);
-                
-                // Update input hidden city_name
-                $citySelect.siblings('input[name="city_name"]').val(selectedCityNametext.replace(/\+/g, ' ').trim().replace(/\s+/g, ' '));
+                $citySelect.siblings('input[name="city_name"]').val(selectedCityName.replace(/\+/g, ' ').trim().replace(/\s+/g, ' '));
 
                 // Debugging di console
                 console.log("Hidden City ID Updated:", $citySelect.siblings('input[name="city_id"]').val());

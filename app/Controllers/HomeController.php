@@ -988,7 +988,7 @@ class HomeController extends BaseController
         if (empty($data['invoice'])) {
             $orderModel->addInvoice($data['order']->id);
         }
-
+        // print_r($data['invoice']);die();
         if (empty($data['invoice'])) {
             return redirect()->to(langBaseUrl());
         }

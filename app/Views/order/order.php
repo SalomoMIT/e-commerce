@@ -150,6 +150,92 @@
 
                                 </div>
                             </div>
+                            <?php $shippingModif= $order->shippingModif; if(!empty($order->shippingModif)):?>
+                                <div class="row shipping-container">
+                                    <div class="col-md-12 col-lg-6 m-b-sm-15">
+                                        <div class="order-address-box">
+                                            <h3 class="block-title"><?= trans("shipping_address"); ?></h3>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("first_name"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->first_name) ? esc($shippingModif->first_name) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("last_name"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->last_name) ? esc($shippingModif->last_name) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("email"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->email) ? esc($shippingModif->email) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("phone_number"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->phone_number) ? esc($shippingModif->phone_number) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("address"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->address) ? esc($shippingModif->address) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("country"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->country) ? esc($shippingModif->country) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("state"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->province_name) ? esc($shippingModif->province_name) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("city"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->city_name) ? esc($shippingModif->city_name) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item mb-0">
+                                                <div class="col-5"><?= trans("zip_code"); ?></div>
+                                                <div class="col-7"><?= !empty($shippingModif->zip_code) ? esc($shippingModif->zip_code) : ''; ?></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12 col-lg-6">
+                                        <div class="order-address-box">
+                                            <h3 class="block-title"><?= trans("billing_address"); ?></h3>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("first_name"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bFirstName) ? esc($shipping->bFirstName) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("last_name"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bLastName) ? esc($shipping->bLastName) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("email"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bEmail) ? esc($shipping->bEmail) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("phone_number"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bPhoneNumber) ? esc($shipping->bPhoneNumber) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("address"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bAddress) ? esc($shipping->bAddress) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("country"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bCountry) ? esc($shipping->bCountry) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("state"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bState) ? esc($shipping->bState) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item">
+                                                <div class="col-5"><?= trans("city"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bCity) ? esc($shipping->bCity) : ''; ?></div>
+                                            </div>
+                                            <div class="row shipping-row-item mb-0">
+                                                <div class="col-5"><?= trans("zip_code"); ?></div>
+                                                <div class="col-7"><?= !empty($shipping->bZipCode) ? esc($shipping->bZipCode) : ''; ?></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endif;?>
                             <?php $shipping = unserializeData($order->shipping);
                             if (!empty($shipping)):?>
                                 <div class="row shipping-container">

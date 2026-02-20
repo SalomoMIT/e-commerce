@@ -70,7 +70,13 @@ class OrderController extends BaseController
         }
 
         $data['panelSettings'] = getPanelSettings();
-
+        
+        $data['order']->shippingModif = $this->orderModel->getShippingAddressByUserId($this->userId);
+        if($data['order']->shippingModif!=null)
+        {
+            $data['order']->shippingModif->country ="Indonesia";
+        }
+        $data['order']->shipping=null;
         echo view('partials/_header', $data);
         echo view('order/order', $data);
         echo view('partials/_footer');

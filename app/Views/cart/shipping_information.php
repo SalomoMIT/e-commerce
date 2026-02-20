@@ -71,12 +71,12 @@
                                             </form>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="tab-checkout tab-checkout-closed-bordered">
+                                    <!-- <div class="tab-checkout tab-checkout-closed-bordered">
                                         <h2 class="title">2.&nbsp;&nbsp;<?= trans("payment_method"); ?></h2>
                                     </div>
                                     <div class="tab-checkout tab-checkout-closed-bordered border-top-0">
                                         <h2 class="title">3.&nbsp;&nbsp;<?= trans("payment"); ?></h2>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>

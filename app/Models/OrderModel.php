@@ -18,6 +18,7 @@ class OrderModel extends BaseModel
     {
         parent::__construct();
         $this->builder = $this->db->table('orders');
+        $this->builderShippingAddress = $this->db->table('shipping_addresses');
         $this->builderOrderItems = $this->db->table('order_items');
         $this->builderRefundRequests = $this->db->table('refund_requests');
         $this->builderDigitalSales = $this->db->table('digital_sales');
@@ -501,7 +502,13 @@ class OrderModel extends BaseModel
     {
         return $this->builder->where('checkout_token', cleanStr($token))->get()->getRow();
     }
-
+    public function getShippingAddressByUserId($userId)
+    {
+        return $this->builderShippingAddress->where('user_id', $userId)
+        ->where('address_type', 'shipping')
+        ->where('isdefault', 1)
+        ->get()->getRow();
+    }
     //update order product status
     public function updateOrderProductStatus($orderProductId)
     {
@@ -742,6 +749,7 @@ class OrderModel extends BaseModel
                 }
             }
             $client = getUser($order->buyer_id);
+            // print_r($client);die();
             if (!empty($client)) {
                 $country = getCountry($client->country_id);
                 $state = getState($client->state_id);
