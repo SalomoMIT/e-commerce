@@ -293,6 +293,14 @@
                                 </div>
                             </div>
                             <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12 col-md-12 m-b-sm-15">
+                                        <label class="control-label">Zip Code</label>
+                                        <input type="number" name="zip_code" class="form-control form-input" value="<?= esc($address->zip_code); ?>" placeholder="<?= trans("zip_code"); ?>" maxlength="7">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="control-label"><?= trans("address"); ?></label>
                                 <textarea
                                     name="address"

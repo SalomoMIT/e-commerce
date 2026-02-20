@@ -64,7 +64,6 @@ class HomeController extends BaseController
         $jsonLdGenerator = new JsonLdGenerator();
         $typesToGenerate = ['website', 'organization'];
         $data['jsonLdScript'] = $jsonLdGenerator->generate($typesToGenerate, $data);
-
         echo view('partials/_header', $data);
         echo view('index', $data);
         echo view('partials/_footer', $data);
@@ -87,6 +86,7 @@ class HomeController extends BaseController
             if (!empty($category)) {
                 $this->category($category);
             } else {
+                echo "xxxxxxxxxxxxxxx";
                 $this->product($slug);
             }
         }
@@ -151,7 +151,7 @@ class HomeController extends BaseController
         ];
 
         $data['products'] = $this->productModel->loadProducts($objParams);
-
+        
         echo view('partials/_header', $data);
         echo view('product/products', $data);
         echo view('partials/_footer');

@@ -278,7 +278,7 @@ class ProfileModel extends BaseModel
         
         if (!empty($row) && user()->id == $row->user_id) {
             $data = $this->shippingAddressInputValues();
-            if(!$isdefaultexist){
+            if(!$isdefaultexist && $data['address_type'] == 'shipping'){
                 $data['isdefault'] =1;
             }
             return $this->builderShippingAddresses->where('id', $row->id)->update($data);

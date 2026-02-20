@@ -45,7 +45,7 @@ if ($product->product_type != 'digital' && $isLocationEnabled == true):?>
                         <?php $countryId = $generalSettings->single_country_id;
                     endif; ?>
 
-                    <div id="get_cities_container" class="col-md-12 col-lg-2 m-b-15 <?= empty($cities) ? 'display-none' : ''; ?>">
+                    <div id="get_cities_container" class="col-md-12 col-lg-2 m-b-15">
                         <input type="hidden" name="city_id_modif" value="<?= $product->city_id_modif; ?>">
                         <input type="hidden" name="city_name_modif" value="<?= $product->city_name_modif; ?>">
                         <select id="select_cities_<?= $product->id; ?>" class="select2 form-control" onchange="getDistrict(this.value,'<?= $product->id; ?>');" required>

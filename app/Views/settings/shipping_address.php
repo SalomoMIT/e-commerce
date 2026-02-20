@@ -169,53 +169,71 @@
                     </div>
                     <div class="form-group">
                         <div class="row">
-                            <?php if ($generalSettings->single_country_mode != 1): ?>
-                                <div class="col-12 col-md-6 m-b-sm-15">
-                                    <label class="control-label"><?= trans("country"); ?></label>
-                                    <select id="select_countries_new_address" name="country_id" class="select2 select2-req form-control" data-placeholder="<?= trans("country"); ?>" onchange="getStates(this.value,'new_address');" required>
-                                        <option></option>
-                                        <?php if (!empty($activeCountries)):
-                                            foreach ($activeCountries as $item): ?>
-                                                <option value="<?= $item->id; ?>" class="option"><?= esc($item->name); ?></option>
-                                            <?php endforeach;
-                                        endif; ?>
-                                    </select>
-                                </div>
-                            <?php else: ?>
-                                <input type="hidden" name="country_id" value="<?= $generalSettings->single_country_id; ?>">
-                                <?php $states = getStatesByCountry($generalSettings->single_country_id);
-                            endif; ?>
-                            <div class="col-12 <?= $generalSettings->single_country_mode == 1 ? 'col-md-12' : 'col-md-6'; ?>">
-                                <label class="control-label"><?= trans("state"); ?></label>
-                                XCV
-                                <div id="get_states_container_new_address">
-                                    <select id="select_states_new_address" name="state_id" class="select2 select2-req form-control" data-placeholder="<?= trans("state"); ?>" data-id="select_states_new_address" required>
-                                        <option></option>
-                                        <?php if (!empty($states)):
-                                            foreach ($states as $item): ?>
-                                                <option value="<?= $item->id; ?>" class="option"><?= esc($item->name); ?></option>
-                                            <?php endforeach;
-                                        endif; ?>
-                                    </select>
-                                </div>
+                            <div class="col-12 col-md-12 m-b-sm-15">
+                                <label class="control-label"><?= trans("country"); ?></label>
+                                <input disabled class="form-control form-input" value="Indonesia" maxlength="250">
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="row">
-                            <div class="col-12 col-md-6 m-b-sm-15">
-                                <label class="control-label"><?= trans("city"); ?></label>
-                                <input type="text" name="city" class="form-control form-input" placeholder="<?= trans("city"); ?>" maxlength="250" required>
+                            <div class="col-12 col-md-12 m-b-sm-15">
+                                <label class="control-label">Province</label>
+                                <input type="hidden" name="province_id" value="<?= $address->province_id; ?>">
+                                <input type="hidden" name="province_name" value="<?= $address->province_name; ?>">
+                                <select id="select_provinces_<?= $address->id; ?>" class="select2 form-control" onchange="getCities(this.value,'<?= $address->id; ?>');" required>
+                                    <option value="">Pilih Provinsi</option>
+                                    <?php if (!empty($states)):                                            
+                                        foreach ($states as $item): ?>                                                    
+                                            <option value="<?= $item->id; ?>" <?= $item->id == $address->province_id ? 'selected' : ''; ?>><?= esc($item->name); ?></option>
+                                        <?php endforeach;
+                                    endif; ?>
+                                </select>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="control-label"><?= trans("zip_code"); ?></label>
-                                <input type="text" name="zip_code" class="form-control form-input" placeholder="<?= trans("zip_code"); ?>" maxlength="90" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-12 col-md-12 m-b-sm-15">
+                                <label class="control-label">City</label>
+                                <input type="hidden" name="city_id" value="<?= $address->city_id; ?>">
+                                <input type="hidden" name="city_name" value="<?= $address->city_name; ?>">
+                                <select id="select_cities_<?= $address->id; ?>" class="select2 form-control" onchange="getDistrict(this.value,'<?= $address->id; ?>');" required>
+                                    <option value="<?= $address->city_id; ?>"><?= $address->city_name; ?></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-12 col-md-12 m-b-sm-15">
+                                <label class="control-label">District</label>
+                                <input type="hidden" name="district_id" value="<?= $address->district_id; ?>">
+                                <input type="hidden" name="district_name" value="<?= $address->district_name; ?>">
+                                <select id="select_district_<?= $address->id; ?>" class="select2 form-control" onchange="setAddressPick(this.value,'<?= $address->id; ?>');" required>                                            
+                                    <option value="<?= $address->district_id; ?>"><?= $address->district_name; ?></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-12 col-md-12 m-b-sm-15">
+                                <label class="control-label">Zip Code</label>
+                                <input type="number" name="zip_code" class="form-control form-input" value="<?= esc($address->zip_code); ?>" placeholder="<?= trans("zip_code"); ?>" maxlength="7">
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="control-label"><?= trans("address"); ?></label>
-                        <input type="text" name="address" class="form-control form-input" placeholder="<?= trans("address"); ?>" maxlength="490" required>
+                        <textarea
+                            name="address"
+                            class="form-control form-input"
+                            placeholder="<?= trans('address'); ?>"
+                            rows="3"
+                            maxlength="490"
+                            required
+                        ><?= esc($address->address); ?></textarea>
                     </div>
                 </div>
                 <div class="modal-footer text-right">
@@ -321,6 +339,14 @@
                                         <select id="select_district_<?= $address->id; ?>" class="select2 form-control" onchange="setAddressPick(this.value,'<?= $address->id; ?>');" required>                                            
                                             <option value="<?= $address->district_id; ?>"><?= $address->district_name; ?></option>
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-12 col-md-12 m-b-sm-15">
+                                        <label class="control-label">Zip Code</label>
+                                        <input type="number" name="zip_code" class="form-control form-input" value="<?= esc($address->zip_code); ?>" placeholder="<?= trans("zip_code"); ?>" maxlength="7">
                                     </div>
                                 </div>
                             </div>
