@@ -179,7 +179,7 @@
                 </div>
             </div>
         <?php endif; ?>
-        <div class="item">
+        <!-- <div class="item">
             <div class="title">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 32 32">
                     <path fill="#7c818b" d="M16 4C9.383 4 4 9.383 4 16s5.383 12 12 12s12-5.383 12-12S22.617 4 16 4m0 2c5.535 0 10 4.465 10 10s-4.465 10-10 10S6 21.535 6 16S10.465 6 16 6m-1 2v9h7v-2h-5V8z"/>
@@ -200,7 +200,7 @@
             <?php else: ?>
                 <button type="button" data-toggle="modal" data-target="#locationModal" class="nav-link btn-modal-location button-link link-underlined btn-modal-location-product" aria-label="location-modal"><?= trans("select_location") ?></button>
             <?php endif; ?>
-        </div>
+        </div> -->
     <?php endif; ?>
     <div class="item">
         <strong><?= trans("share"); ?>:</strong>&nbsp;<?= view("product/details/_product_share"); ?>

@@ -66,7 +66,9 @@ class CartController extends BaseController
             $cartItemId = $this->cartModel->addToCart($product, $quantity, $variantId, $extraOptions);
             if (!empty($cartItemId)) {
                 $cart = $this->cartModel->getCart();
+
                 $cartItem = $this->cartModel->getCartItem($cartItemId);
+
                 if (empty($cart) || empty($cartItem)) {
                     return jsonResponse(['result' => 0]);
                 }

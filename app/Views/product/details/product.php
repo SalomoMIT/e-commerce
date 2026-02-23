@@ -47,7 +47,7 @@
                                     </li>
                                 <?php endif;
                                 if ($shippingStatus == 1 || $productLocationStatus == 1): ?>
-                                    <li class="nav-item">
+                                    <!-- <li class="nav-item">
                                         <?php if ($shippingStatus == 1 && $productLocationStatus != 1): ?>
                                             <a class="nav-link" id="tab_shipping" data-toggle="tab" href="#tab_shipping_content"><?= trans("shipping"); ?></a>
                                         <?php elseif ($shippingStatus != 1 && $productLocationStatus == 1): ?>
@@ -55,7 +55,7 @@
                                         <?php else: ?>
                                             <a class="nav-link" id="tab_shipping" data-toggle="tab" href="#tab_shipping_content" onclick="loadProductShopLocationMap();"><?= trans("shipping_location"); ?></a>
                                         <?php endif; ?>
-                                    </li>
+                                    </li> -->
                                 <?php endif;
                                 if ($generalSettings->reviews == 1): ?>
                                     <li class="nav-item">

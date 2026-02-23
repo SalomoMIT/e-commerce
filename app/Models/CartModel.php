@@ -332,6 +332,7 @@ class CartModel extends BaseModel
         }
 
         $results = $builder->get()->getResultObject();
+        // echo json_encode($results); die();
 
         if (empty($results)) {
             return null;
@@ -431,7 +432,6 @@ class CartModel extends BaseModel
             }
             return $cart;
         }        
-        
         $cart->num_items = 0;
         foreach ($cart->items as $key => $cartItem) {
             $product = getActiveProduct($cartItem->product_id);
@@ -456,6 +456,7 @@ class CartModel extends BaseModel
         $cart = $this->calculateCartTotal($cart, $includeTaxes, $includeTransactionFee);
 
         $cart->is_valid = $this->isCartValid($cart);
+
         return $cart;
     }
 
@@ -561,7 +562,7 @@ class CartModel extends BaseModel
             $unitPrice = convertCurrencyByExchangeRate($unitPrice, $cart->currency_exchange_rate);
             $totalPrice = convertCurrencyByExchangeRate($totalPrice, $cart->currency_exchange_rate);
         }
-
+        echo "xxxxxxxxx"; die();
         $cartItem = [
             'cart_id' => $cartId,
             'item_hash' => '',
@@ -643,6 +644,7 @@ class CartModel extends BaseModel
             }
         } else {
             $unitPrice = $product->price_discounted ?? $product->price;
+            
             if (!empty($variant)) {
 
                 if (!empty($variant->price_discounted) && $variant->price_discounted > 0) {
@@ -656,12 +658,12 @@ class CartModel extends BaseModel
             }
 
             $unitPriceBase = $unitPrice;
-            if ($this->paymentSettings->currency_converter == 1 && !empty($cart->currency_code) && !empty($cart->currency_exchange_rate)) {
+            
+            if ($this->paymentSettings->currency_converter == 1 && !empty($cart->currency_code) && !empty($cart->currency_exchange_rate) && $cart->currency_code !='IDR') {
                 $unitPrice = convertCurrencyByExchangeRate($unitPrice, $cart->currency_exchange_rate);
             }
             $totalPrice = $unitPrice * $cartItem->quantity;
         }
-
         //calculate tax based on the definitive unit price
         $vatAmount = 0;
         $vatRate = 0;
@@ -682,6 +684,8 @@ class CartModel extends BaseModel
         $cartItem->unit_price_base = numToDecimal($unitPriceBase);
         $cartItem->unit_price = numToDecimal($unitPrice);
         $cartItem->total_price = numToDecimal($totalPrice);
+        // echo "kesini".json_encode($cartItem); die();
+
         $cartItem->product_vat = $vatAmount;
         $cartItem->product_vat_rate = $vatRate;
         $cartItem->seller_id = $product->user_id;

@@ -1581,6 +1581,7 @@ $("#form-add-to-cart").submit(function (event) {
             url: generateUrl('cart/add-to-cart'),
             data: serializedData,
             success: function (response) {
+                console.log(response.htmlCartProduct)
                 if (response.result == 1) {
                     setTimeout(function () {
                         document.getElementById("contentModalCartProduct").innerHTML = response.htmlCartProduct;

@@ -86,7 +86,6 @@ class HomeController extends BaseController
             if (!empty($category)) {
                 $this->category($category);
             } else {
-                echo "xxxxxxxxxxxxxxx";
                 $this->product($slug);
             }
         }
@@ -122,7 +121,7 @@ class HomeController extends BaseController
      * Products
      */
     public function products()
-    {
+    { 
         $data = $this->categoryModel->getCachedCategoryPageData($this->activeLang->id, null);
 
         $data = setPageMeta(trans("products"), $data);
@@ -151,7 +150,7 @@ class HomeController extends BaseController
         ];
 
         $data['products'] = $this->productModel->loadProducts($objParams);
-        
+
         echo view('partials/_header', $data);
         echo view('product/products', $data);
         echo view('partials/_footer');
@@ -246,6 +245,7 @@ class HomeController extends BaseController
     public function product($slug)
     {
         $product = $this->productModel->getProductBySlug($slug);
+
         if (empty($product)) {
             $this->error404();
         } else {
@@ -261,6 +261,7 @@ class HomeController extends BaseController
             if (empty($data['productDetails'])) {
                 $data['productDetails'] = array();
             }
+
             $data['parentCategoriesTree'] = $this->categoryModel->getCategoryParentTree($product->category_id);
 
             //related products
@@ -329,10 +330,15 @@ class HomeController extends BaseController
             $data['productSku'] = $product->sku;
             $convertCurrency = $product->listing_type == 'ordinary_listing' ? false : true;
             $data['productPrice'] = !empty($product->price) && $product->price > 0 ? priceFormatted($product->price, $product->currency, $convertCurrency) : '';
+            
             $data['productPriceDiscounted'] = priceFormatted($product->price_discounted, $product->currency, $convertCurrency);
             $data['productDiscountRate'] = calculateDiscount($product->price, $product->price_discounted);
             $data['productStock'] = $product->stock;
+            if($product->currency == 'IDR'){
+                $data['productPriceDiscounted'] = $data['productPriceDiscounted'] = priceFormatted($product->price_discounted, $product->currency, false);
 
+            }
+            
             //slider images
             $productSliderImages = [];
             foreach ($data['productImages'] as $image) {
@@ -386,7 +392,6 @@ class HomeController extends BaseController
                         $price = $product->price;
                         $priceDiscounted = $product->price_discounted;
                     }
-
                     $data['initialVariant'] = $initialVariant;
                     $data['productSku'] = $initialVariant->sku;
                     $data['productPrice'] = !empty($price) && $price > 0 ? priceFormatted($price, $product->currency, $convertCurrency) : '';
@@ -413,7 +418,7 @@ class HomeController extends BaseController
             $jsonLdGenerator = new JsonLdGenerator();
             $typesToGenerate = ['product', 'breadcrumb'];
             $data['jsonLdScript'] = $jsonLdGenerator->generate($typesToGenerate, $data);
-
+            // echo "<code>".json_encode($data);
             echo view('partials/_header', $data);
             echo view('product/details/product', $data);
             echo view('partials/_footer');
@@ -988,7 +993,6 @@ class HomeController extends BaseController
         if (empty($data['invoice'])) {
             $orderModel->addInvoice($data['order']->id);
         }
-        // print_r($data['invoice']);die();
         if (empty($data['invoice'])) {
             return redirect()->to(langBaseUrl());
         }

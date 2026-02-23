@@ -1,7 +1,7 @@
 <?php
 $hasDiscount = !empty($product->discount_rate) && $product->discount_rate > 0;
 
-$convertCurrency = ($product->listing_type !== 'ordinary_listing');
+$convertCurrency = $product->currency=='IDR'? false: ($product->listing_type !== 'ordinary_listing');
 
 $priceContainerClasses = ['product-price'];
 if (!$baseVars->isPriceSingleLine) {
@@ -13,7 +13,7 @@ $discountedPriceHtml = '';
 
 if (!empty($product->price)) {
     $currentPriceClasses = 'price' . ($hasDiscount ? ' price-green' : '');
-    $discountedPriceHtml = '<span class="' . $currentPriceClasses . '">' . priceFormatted($product->price_discounted, $product->currency, $convertCurrency) . '</span>';
+    $discountedPriceHtml = '<span class="' . $currentPriceClasses . '">' . priceFormatted($product->price_discounted, $product->currency,  $convertCurrency) . '</span>';
 
     if ($hasDiscount) {
         $originalPriceHtml = '<del class="discount-original-price">' . priceFormatted($product->price, $product->currency, $convertCurrency) . '</del>';

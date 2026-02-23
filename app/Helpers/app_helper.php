@@ -966,7 +966,7 @@ if (!function_exists('numToDecimal')) {
         }
 
         $priceFloat = (float)$sanitized;
-        $maxValue = 9999999999.99;
+        $maxValue = PHP_FLOAT_MAX;
 
         if ($priceFloat < 0 || $priceFloat > $maxValue) {
             return 0;
